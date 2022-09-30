@@ -1,0 +1,324 @@
+[
+  {
+    "objectID": "002-Test.html",
+    "href": "002-Test.html",
+    "title": "Test du Chi-2",
+    "section": "",
+    "text": "On va réaliser une analyse de relations entre deux variables qualitatives pour un pays et comparer les résultats à deux périodes de temps."
+  },
+  {
+    "objectID": "002-Test.html#recodage-des-facteurs",
+    "href": "002-Test.html#recodage-des-facteurs",
+    "title": "Test du Chi-2",
+    "section": "Recodage des facteurs",
+    "text": "Recodage des facteurs\n\nlevels(sel$job_man)\n\n[1] \"Missing; Unknown\"    \"Not asked in survey\" \"Not applicable\"     \n[4] \"No answer\"           \"DonÂ´t know\"         \"Agree\"              \n[7] \"Disagree\"            \"Neither\"            \n\nlevels(sel$sex)<-c(NA,NA,NA,NA,\"Homme\",\"Femme\")\nlevels(sel$job_man)<-c(NA,NA,NA,NA,\"NSP\",\"D'accord\",\"Pas d'acccord\",\"NSP\")\nlevels(sel$job_nat)<-c(NA,NA,NA,NA,\"NSP\",\"D'accord\",\"Pas d'acccord\",\"NSP\")"
+  },
+  {
+    "objectID": "002-Test.html#découpage-des-classes",
+    "href": "002-Test.html#découpage-des-classes",
+    "title": "Test du Chi-2",
+    "section": "Découpage des classes",
+    "text": "Découpage des classes\n\nsel$age6<-cut(sel$age, breaks=c(15,29,39,49,59,69,110))\nlevels(sel$age6)<-c(\"- de 25 ans\",\n                    \"30-39 ans\",\n                    \"40-49 ans\",\n                    \"50-59 ans\",\n                    \"60-69 ans\",\n                    \"70 ans et +\")\nsel$gen4<-cut(sel$gen, breaks=c(1901,1944,1959,1974,2010))\nlevels(sel$gen4)<- c(\"Pre-Boomer (< 1945)\",\n                  \"Boomer I (1945-1959)\",\n                  \"Boomer II (1960-74)\",\n                 \"Post-Boomer (> 1974)\")"
+  },
+  {
+    "objectID": "002-Test.html#division-par-période",
+    "href": "002-Test.html#division-par-période",
+    "title": "Test du Chi-2",
+    "section": "Division par période",
+    "text": "Division par période\n\nsel1<-sel %>% filter(year <2000)\nsel2<-sel %>% filter(year>2000)"
+  },
+  {
+    "objectID": "002-Test.html#résumé",
+    "href": "002-Test.html#résumé",
+    "title": "Test du Chi-2",
+    "section": "Résumé",
+    "text": "Résumé\n\nsummary(sel1)\n\n                  pays           year           wgt       sex      \n Germany            :2026   Min.   :1997   Min.   :1   Homme: 928  \n Missing; Unknown   :   0   1st Qu.:1997   1st Qu.:1   Femme:1098  \n Not asked in survey:   0   Median :1997   Median :1               \n Not applicable     :   0   Mean   :1997   Mean   :1               \n No answer          :   0   3rd Qu.:1997   3rd Qu.:1               \n Don't know         :   0   Max.   :1997   Max.   :1               \n (Other)            :   0                                          \n      age             gen                job_man              job_nat    \n Min.   :18.00   Min.   :1907   NSP          : 295   NSP          : 202  \n 1st Qu.:30.00   1st Qu.:1941   D'accord     : 447   D'accord     :1140  \n Median :41.00   Median :1956   Pas d'acccord:1284   Pas d'acccord: 684  \n Mean   :43.61   Mean   :1953                                            \n 3rd Qu.:56.00   3rd Qu.:1967                                            \n Max.   :90.00   Max.   :1979                                            \n NA's   :7       NA's   :7                                               \n          age6                       gen4    \n - de 25 ans:450   Pre-Boomer (< 1945) :616  \n 30-39 ans  :503   Boomer I (1945-1959):527  \n 40-49 ans  :374   Boomer II (1960-74) :757  \n 50-59 ans  :315   Post-Boomer (> 1974):119  \n 60-69 ans  :215   NA's                :  7  \n 70 ans et +:162                             \n NA's       :  7                             \n\nsummary(sel2)\n\n                  pays           year           wgt       sex     \n Germany            :1528   Min.   :2018   Min.   :1   Homme:743  \n Missing; Unknown   :   0   1st Qu.:2018   1st Qu.:1   Femme:785  \n Not asked in survey:   0   Median :2018   Median :1              \n Not applicable     :   0   Mean   :2018   Mean   :1              \n No answer          :   0   3rd Qu.:2018   3rd Qu.:1              \n Don't know         :   0   Max.   :2018   Max.   :1              \n (Other)            :   0                                         \n      age            gen                job_man              job_nat   \n Min.   :18.0   Min.   :1921   NSP          : 194   NSP          :281  \n 1st Qu.:36.0   1st Qu.:1952   D'accord     : 140   D'accord     :414  \n Median :51.0   Median :1966   Pas d'acccord:1193   Pas d'acccord:824  \n Mean   :50.8   Mean   :1966   NA's         :   1   NA's         :  9  \n 3rd Qu.:65.0   3rd Qu.:1981                                           \n Max.   :96.0   Max.   :2000                                           \n                                                                       \n          age6                       gen4    \n - de 25 ans:248   Pre-Boomer (< 1945) :217  \n 30-39 ans  :201   Boomer I (1945-1959):335  \n 40-49 ans  :270   Boomer II (1960-74) :460  \n 50-59 ans  :299   Post-Boomer (> 1974):516  \n 60-69 ans  :233                             \n 70 ans et +:277"
+  },
+  {
+    "objectID": "002-Test.html#création-du-tableau-de-contingence",
+    "href": "002-Test.html#création-du-tableau-de-contingence",
+    "title": "Test du Chi-2",
+    "section": "Création du tableau de contingence",
+    "text": "Création du tableau de contingence\n\nX<-sel$year\nY<-sel$job_man\nW<-sel$wgt\ntc<- wtd.table(X,Y,W)\ntc\n\n      NSP D'accord Pas d'acccord\n1997  295      447          1284\n2018  194      140          1193"
+  },
+  {
+    "objectID": "002-Test.html#profils-en-pourcentage",
+    "href": "002-Test.html#profils-en-pourcentage",
+    "title": "Test du Chi-2",
+    "section": "Profils en pourcentage",
+    "text": "Profils en pourcentage\n\nlprop(tc)\n\n         NSP   D'accord Pas d'acccord Total\n1997      14.6  22.1     63.4         100.0\n2018      12.7   9.2     78.1         100.0\nEnsemble  13.8  16.5     69.7         100.0\n\ncprop(tc)\n\n      NSP   D'accord Pas d'acccord Ensemble\n1997   60.3  76.1     51.8          57.0   \n2018   39.7  23.9     48.2          43.0   \nTotal 100.0 100.0    100.0         100.0   \n\nprop(tc)\n\n      NSP   D'accord Pas d'acccord Total\n1997    8.3  12.6     36.1          57.0\n2018    5.5   3.9     33.6          43.0\nTotal  13.8  16.5     69.7         100.0"
+  },
+  {
+    "objectID": "002-Test.html#visualisation",
+    "href": "002-Test.html#visualisation",
+    "title": "Test du Chi-2",
+    "section": "Visualisation",
+    "text": "Visualisation\n\nplot(tc,col=c(\"gray\",\"yellow\",\"orange\"), main=\"Priorité au travail des hommes\")"
+  },
+  {
+    "objectID": "002-Test.html#test-du-chi-2",
+    "href": "002-Test.html#test-du-chi-2",
+    "title": "Test du Chi-2",
+    "section": "Test du chi-2",
+    "text": "Test du chi-2\n\ntk2 <- chisq.test(tc)\ntk2\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 116.99, df = 2, p-value < 2.2e-16"
+  },
+  {
+    "objectID": "002-Test.html#résidus",
+    "href": "002-Test.html#résidus",
+    "title": "Test du Chi-2",
+    "section": "Résidus",
+    "text": "Résidus\n\nkable(tk2$observed, caption = \"Valeurs observées\")\n\n\nValeurs observées\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n295\n447\n1284\n\n\n2018\n194\n140\n1193\n\n\n\n\nkable(tk2$expected, caption = \"Valeurs théoriques\")\n\n\nValeurs théoriques\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n278.8387\n334.7205\n1412.441\n\n\n2018\n210.1613\n252.2795\n1064.559\n\n\n\n\nkable(tk2$observed-tk2$expected, caption = \"Résidus bruts\", digits=1)\n\n\nRésidus bruts\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n16.2\n112.3\n-128.4\n\n\n2018\n-16.2\n-112.3\n128.4\n\n\n\n\nkable(tk2$residuals , caption = \"Résidus standardisés\", digits=2)\n\n\nRésidus standardisés\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n0.97\n6.14\n-3.42\n\n\n2018\n-1.11\n-7.07\n3.94"
+  },
+  {
+    "objectID": "002-Test.html#visualisation-des-écarts-signifcatifs",
+    "href": "002-Test.html#visualisation-des-écarts-signifcatifs",
+    "title": "Test du Chi-2",
+    "section": "Visualisation des écarts signifcatifs",
+    "text": "Visualisation des écarts signifcatifs\n\nmosaicplot(tc, shade =TRUE)"
+  },
+  {
+    "objectID": "002-Test.html#en-1997",
+    "href": "002-Test.html#en-1997",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$sex\nY<-sel1$job_man\nW<-sel1$wgt\ntitre <- \"Travail des femmes / Sexe (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Sexe (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nHomme\n162\n211\n555\n\n\nFemme\n133\n236\n729\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Sexe (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nHomme\n17.45690\n22.73707\n59.80603\n100\n\n\nFemme\n12.11293\n21.49362\n66.39344\n100\n\n\nEnsemble\n14.56071\n22.06318\n63.37611\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 13.66, df = 2, p-value = 0.001081\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "002-Test.html#en-2018",
+    "href": "002-Test.html#en-2018",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$sex\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Sexe (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Sexe (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nHomme\n112\n77\n553\n\n\nFemme\n82\n63\n640\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Sexe (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nHomme\n15.09434\n10.377358\n74.52830\n100\n\n\nFemme\n10.44586\n8.025478\n81.52866\n100\n\n\nEnsemble\n12.70465\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 11.182, df = 2, p-value = 0.003732\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Géoprisme 2022",
+    "section": "",
+    "text": "Mise à niveau en R"
+  },
+  {
+    "objectID": "001-Data.html",
+    "href": "001-Data.html",
+    "title": "Préparation des données",
+    "section": "",
+    "text": "L’objet de ce cours est de donner une introduction à l’analyse d’enquête dans R en présentant de façon aussi simple que possible les outils de haut niveau mis au point récemment par des ingénieurs français pouur rendre pluus accessible les tâches de préparation des données, recodage, description, test et modélisation. Nous sommes à cet égard particulièrement redevable à deux auteurs, Julien Barnier et Joseph Larmarange qui ont crée ou contribué au développement de packages qui simplifient grandement le travail ainsi qu’à des sites pédagogiques d’exemples.\nNotre contribution personnelle consiste principalement ici à implémenter leurs travaux sur un nouvel exemple d’application, celui des données de la World Value Survey dont nous avons extrait un échantillon composé de pays présents dans la vague la plus récente et dans une vague ancienne afin de pouvoir (1) suivre des évolutions à l’échelle d’une génération et (2) comparer des pays entre eux."
+  },
+  {
+    "objectID": "001-Data.html#chargement-du-fichier-initial",
+    "href": "001-Data.html#chargement-du-fichier-initial",
+    "title": "Préparation des données",
+    "section": "Chargement du fichier initial",
+    "text": "Chargement du fichier initial\nLe fichier utilisé est composé de variables au format haven_labelled qui est un type bien adapté au stockage des données d’enquête mais est initialement plus difficile à comprendre que les formats habituellement utilisés dans R. Il suppose en effet le chargement du package labelledpour en exploiter toutes les possibilités. On trouvera tous les détails sur ce format dans la page que lui a consacré Joseph Larmarange :\nhttps://larmarange.github.io/labelled/\n\nlibrary(labelled)\nbase<-readRDS(file = \"data/WVS_exo.RDS\")\nkable(head(base))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nS002\nS003\nS020\nS009\nS017\nX001\nX002\nX003\nX007\nX025R\nX025A_01\nX028\nX047R_WVS\nX047_WVS\nX049\nA008\nA170\nC001\nC002\nD059\nD060\nE035\nE036\nF050\nF118\nF120\nF121\n\n\n\n\n3\n32\n1995\nAR\n1.124528\n2\n1948\n46\n1\n3\n-4\n5\n2\n5\n-4\n1\n9\n2\n1\n4\n4\n8\n9\n1\n7\n7\n7\n\n\n3\n32\n1995\nAR\n1.124528\n2\n1973\n22\n6\n2\n-4\n6\n3\n10\n-4\n2\n9\n2\n3\n3\n3\n7\n4\n1\n10\n5\n8\n\n\n3\n32\n1995\nAR\n1.124528\n2\n1943\n52\n1\n2\n-4\n5\n3\n10\n-4\n2\n5\n2\n1\n4\n4\n5\n5\n0\n10\n8\n10\n\n\n3\n32\n1995\nAR\n1.124528\n1\n1927\n68\n1\n1\n-4\n4\n3\n8\n-4\n2\n10\n3\n1\n3\n4\n10\n1\n1\n1\n1\n1\n\n\n3\n32\n1995\nAR\n1.124528\n1\n1947\n48\n1\n2\n-4\n3\n3\n8\n-4\n2\n10\n2\n1\n3\n4\n5\n5\n1\n5\n1\n5\n\n\n3\n32\n1995\nAR\n1.255462\n2\n1969\n26\n6\n3\n-4\n1\n3\n8\n-4\n1\n10\n2\n1\n2\n3\n10\n3\n1\n5\n1\n5\n\n\n\n\n\nA première vue le fichier n’est d’aspect pas très sympathique puisque les noms de colonnes ne permettent pas de deviner la variable (X001, X002, X003, …) et que le contenu est manifestement lui-même codé. Toutefois, si l’on regarde dans la fenêtre Environnement de R Studio, on voit qu’il y a beaucouo plus de renseignements."
+  },
+  {
+    "objectID": "001-Data.html#visualisation-des-noms-des-variables-et-des-niveaux",
+    "href": "001-Data.html#visualisation-des-noms-des-variables-et-des-niveaux",
+    "title": "Préparation des données",
+    "section": "Visualisation des noms des variables et des niveaux",
+    "text": "Visualisation des noms des variables et des niveaux\nPrenons à titre d’exemple la variable X007. Deux fonctions du package labelled permettent de connaître le nom de la variable (avec var_label) et celui de chacun de ses niveaux (avec val_labels) :\n\nvar_label(base$X007)\n\n[1] \"Marital status\"\n\nval_labels(base$X007)\n\n            Missing: Other                  Not asked \n                        -5                         -4 \n            Not applicable                  No answer \n                        -3                         -2 \n                Don't know                    Married \n                        -1                          1 \nLiving together as married                   Divorced \n                         2                          3 \n                 Separated                    Widowed \n                         4                          5 \n      Single/Never married \n                         6 \n\n\nLa variable en question était donc le statut matrimonial de la personne. Elle comporte 11 modalités correspondant soit à différentes formes de non-réponses (-5 à -1) soit à des réponses (1 à 6).\nLes fonctions classiques de R-base ne permettent cependant pas de traiter directement la variable. Si on execute par exemple la fonction table() on obtient le dénombrement des modalités mais sans les labels des modalités.\n\ntable(base$X007)\n\n\n   -5    -4    -2    -1     1     2     3     4     5     6 \n   33  3029   286    82 65538  6168  3960  2150  6182 25219"
+  },
+  {
+    "objectID": "001-Data.html#création-dun-tableau-des-variables-disponibles",
+    "href": "001-Data.html#création-dun-tableau-des-variables-disponibles",
+    "title": "Préparation des données",
+    "section": "Création d’un tableau des variables disponibles",
+    "text": "Création d’un tableau des variables disponibles\nUn petit programme permet de recenser la liste des variables présentes dans le tableau\n\nlabvar<-var_label(base)\ntab_labvar<-data.frame(code = names(labvar),def = as.character(labvar))\nkable(tab_labvar)\n\n\n\n\n\n\n\n\ncode\ndef\n\n\n\n\nS002\nWVS-wave\n\n\nS003\nCountry (ISO 3166-1 Numeric code)\n\n\nS020\nYear survey\n\n\nS009\nCountry (ISO 3166-1 Alpha-2 code)\n\n\nS017\nWeight\n\n\nX001\nSex\n\n\nX002\nYear of birth\n\n\nX003\nAge\n\n\nX007\nMarital status\n\n\nX025R\nEducational level respondent: recoded\n\n\nX025A_01\nEducational level respondent: ISCED 11 â€ one digit\n\n\nX028\nEmployment status\n\n\nX047R_WVS\nSubjective income level (recoded in 3 groups)\n\n\nX047_WVS\nScale of incomes\n\n\nX049\nSize of town\n\n\nA008\nFeeling of happiness\n\n\nA170\nSatisfaction with your life\n\n\nC001\nJobs scarce: Men should have more right to a job than women (3 categories)\n\n\nC002\nJobs scarce: Employers should give priority to (nation) people than immigrants (\n\n\nD059\nMen make better political leaders than women do\n\n\nD060\nUniversity is more important for a boy than for a girl\n\n\nE035\nIncome equality\n\n\nE036\nPrivate vs state ownership of business\n\n\nF050\nBelieve in: God\n\n\nF118\nJustifiable: Homosexuality\n\n\nF120\nJustifiable: Abortion\n\n\nF121\nJustifiable: Divorce\n\n\n\n\n\nOn peut voir que notre extrait se compose à la fois de variables de cadrage (pays, date de l’enquête), de variables indépendantes explicatives (âge, sexe, revenu, …) et de variables dépendantes à expliquer (sentiment de bonheur, opinion sur les inégalités de revenu, statut des femmes dans la société, …)"
+  },
+  {
+    "objectID": "001-Data.html#conversion-des-variables-haven_labelled-en-factor",
+    "href": "001-Data.html#conversion-des-variables-haven_labelled-en-factor",
+    "title": "Préparation des données",
+    "section": "Conversion des variables haven_labelled en factor",
+    "text": "Conversion des variables haven_labelled en factor\nPour faciliter les traitements statistiques dans R, il est préférable de revenir à un format plus standard qui est le type factor. La conversion n’est à première vue pas très compliquée mais elle peut conduire à des difficultés qui sont le plus souvent faciles à résoudre en utilisant le package questionr.\nDans les cas les plus simples, il suffit d’utiliser la fonction to_factor du package labelled. Comme on peut le voir-ci-dessous, la variable X007 (de type haven_labelled) est transformée en une variable marital (de type factor) sur laquelle on peut désormais appliquer les fonctions de R-base.\n\nmarital <- to_factor(base$X007)\nclass(marital)\n\n[1] \"factor\"\n\nkable(table(marital))\n\n\n\n\nmarital\nFreq\n\n\n\n\nMissing: Other\n33\n\n\nNot asked\n3029\n\n\nNot applicable\n0\n\n\nNo answer\n286\n\n\nDon’t know\n82\n\n\nMarried\n65538\n\n\nLiving together as married\n6168\n\n\nDivorced\n3960\n\n\nSeparated\n2150\n\n\nWidowed\n6182\n\n\nSingle/Never married\n25219\n\n\n\n\n\nMais il peut arriver que la conversion aboutisse à un résultat non satisfaisant, par exemple dans le cas de la variable S003 qui donne le nom complet du pays d’enquête non seulement pour ceux qui sont présent dans le tableau mais dans tous les territoires, pays ou non, ayant servi de lieu d’enquête soit 239 possibilités :\n\npays <- to_factor(base$S003)\nnom_pays<-levels(pays)\nhead(nom_pays,10)\n\n [1] \"Missing; Unknown\"    \"Not asked in survey\" \"Not applicable\"     \n [4] \"No answer\"           \"Don't know\"          \"Afghanistan\"        \n [7] \"Albania\"             \"Algeria\"             \"American Samoa\"     \n[10] \"Andorra\"            \n\nprint(\"...\")\n\n[1] \"...\"\n\ntail(nom_pays,10)\n\n [1] \"Syrian refugees Lebanon\" \"Scotland\"               \n [3] \"Dijibouti\"               \"Latin America\"          \n [5] \"North America\"           \"Asia\"                   \n [7] \"Europe\"                  \"Africa\"                 \n [9] \"A Pacific Island\"        \"Other\"                  \n\n\nBeaucoup de niveaux sont donc inutiles. On peut résoudre le problème en transformant la variable en caractère avant de la retransformer en factor. Le passage en caractère détruit en effet les niveaux inuutilisés.\n\nnom_pays <- to_character(base$S003)\nclass(nom_pays)\n\n[1] \"character\"\n\nnom_pays<-as.factor(nom_pays)\nclass(nom_pays)\n\n[1] \"factor\"\n\nkable(table(nom_pays))\n\n\n\n\nnom_pays\nFreq\n\n\n\n\nArgentina\n2082\n\n\nAustralia\n3861\n\n\nBangladesh\n2725\n\n\nBrazil\n2905\n\n\nCanada\n5949\n\n\nChile\n2000\n\n\nChina\n4536\n\n\nColombia\n7545\n\n\nEgypt\n4200\n\n\nGermany\n3554\n\n\nIndonesia\n4200\n\n\nIran\n4031\n\n\nIraq\n3525\n\n\nJapan\n2407\n\n\nJordan\n2426\n\n\nKyrgyzstan\n2243\n\n\nMacau SAR\n1023\n\n\nMexico\n3249\n\n\nNew Zealand\n2258\n\n\nNigeria\n3233\n\n\nNorth Macedonia\n995\n\n\nPakistan\n2728\n\n\nPeru\n2611\n\n\nPhilippines\n2400\n\n\nPuerto Rico\n2291\n\n\nRomania\n2496\n\n\nRussia\n3850\n\n\nSerbia\n2326\n\n\nSingapore\n3524\n\n\nSouth Korea\n2494\n\n\nTaiwan ROC\n2003\n\n\nTurkey\n4322\n\n\nUkraine\n4100\n\n\nUnited States\n4138\n\n\nVietnam\n2200\n\n\nZimbabwe\n2217"
+  },
+  {
+    "objectID": "001-Data.html#une-solution-brutale",
+    "href": "001-Data.html#une-solution-brutale",
+    "title": "Préparation des données",
+    "section": "Une solution brutale …",
+    "text": "Une solution brutale …\nSi on ne souhaite vraiment pas s’embarasser de difficultés, on peut procéder à la transformation simultanée de touutes les variables haven_labelled en variables de type factor. Puis on peut convertir le tableau en pur data.frame si on ne souhaite pas utiliser les propriétés du package tidyverse.\n\ntb<-to_factor(base)\nclass(tb)\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\ndf<-as.data.frame(tb)\nclass(df)\n\n[1] \"data.frame\""
+  },
+  {
+    "objectID": "001-Data.html#exemple-de-recodage-manuel",
+    "href": "001-Data.html#exemple-de-recodage-manuel",
+    "title": "Préparation des données",
+    "section": "Exemple de recodage manuel",
+    "text": "Exemple de recodage manuel\nUn cas fréquent de recodage est le fait de ne conserver que les réponses et de déclare en valeurs manquantes les non-réponses ou les refus de répondre. Considérons à titre d’exemple la question C001 qui porte sur la priorité à donner aux hommes plutôt qu’aux femmes lorsque le travail est rare et essayons de la croiser avec la variable X001 qui est le sexe de la personne enquêtée.\n\nY<-to_factor(base$C001)\ntable(Y)\n\nY\n   Missing; Unknown Not asked in survey      Not applicable           No answer \n                 42                3029                   0                 210 \n        DonÂ´t know               Agree            Disagree             Neither \n               1246               45554               44378               18188 \n\nX<-to_factor(base$X001)\ntable(X)\n\nX\nMissing; Unknown        Not asked        No answer      DonÂ´t know \n              25                0               28               29 \n            Male           Female \n           53891            58674 \n\ntable(X,Y)\n\n                  Y\nX                  Missing; Unknown Not asked in survey Not applicable\n  Missing; Unknown                3                   0              0\n  Not asked                       0                   0              0\n  No answer                       0                   0              0\n  DonÂ´t know                     0                   0              0\n  Male                           17                1501              0\n  Female                         22                1528              0\n                  Y\nX                  No answer DonÂ´t know Agree Disagree Neither\n  Missing; Unknown         0           1     4       13       4\n  Not asked                0           0     0        0       0\n  No answer                3           0     5       19       1\n  DonÂ´t know              0           0     8        4      17\n  Male                    94         511 24100    18463    9205\n  Female                 113         734 21437    25879    8961\n\n\nSi l’on veut procéder à une analyse statistique, il va être nécessaire de ne conserver que les personnes qui ont répodu à la question d’opinion et dont on connaît le sexe.\nUn recodage “classique” dans R suppose une démarche assez laborieuse\n\npour Y\n\n\n# Examen des niveaux de Y\nlevels(Y)\n\n[1] \"Missing; Unknown\"    \"Not asked in survey\" \"Not applicable\"     \n[4] \"No answer\"           \"DonÂ´t know\"         \"Agree\"              \n[7] \"Disagree\"            \"Neither\"            \n\n# Recodage de Y\nlevels(Y)<-c(NA,NA,NA,NA,NA,\"D'accord\",\"Pas d'accord\",\"Ni l'un ni l'autre\")\n# Dénombrement de Y\ntable(Y)\n\nY\n          D'accord       Pas d'accord Ni l'un ni l'autre \n             45554              44378              18188 \n\n\n\npuis pour X\n\n\n# Examen des niveaux de Y\nlevels(X)\n\n[1] \"Missing; Unknown\" \"Not asked\"        \"No answer\"        \"DonÂ´t know\"     \n[5] \"Male\"             \"Female\"          \n\n# Recodage de X\nlevels(X)<-c(NA,NA,NA,NA,\"Homme\",\"Femme\")\n# Dénombrement de Y\ntable(X)\n\nX\nHomme Femme \n53891 58674 \n\n\n\navant de pouvoir afficher le tableau de contingence et le pourcentage de réponses en ligne (avec la fonction lprop du package questionr)\n\n\ntc <-table(X,Y)\ntc\n\n       Y\nX       D'accord Pas d'accord Ni l'un ni l'autre\n  Homme    24100        18463               9205\n  Femme    21437        25879               8961\n\nlprop(tc)\n\n          Y\nX          D'accord Pas d'accord Ni l'un ni l'autre Total\n  Homme     46.6     35.7         17.8              100.0\n  Femme     38.1     46.0         15.9              100.0\n  Ensemble  42.1     41.0         16.8              100.0\n\n\nOn peut ensuite se demander si l’on veut réellement conserver les réponses “neutres” du type “ni l’un ni l’autre”. Si on pense qu’elles ne sont pas pertinentes, on va procéder à un nouveau recodage de Y\n\n# Examen des niveaux de Y\nY2<-Y\nlevels(Y2)\n\n[1] \"D'accord\"           \"Pas d'accord\"       \"Ni l'un ni l'autre\"\n\n# Recodage de Y\nlevels(Y2)<-c(\"D'accord\",\"Pas d'accord\",NA)\n# tableau de contingence XY\ntc2<-table(X,Y2)\ntc2\n\n       Y2\nX       D'accord Pas d'accord\n  Homme    24100        18463\n  Femme    21437        25879\n\nlprop(tc2,1)\n\n          Y2\nX          D'accord Pas d'accord Total\n  Homme     56.6     43.4        100.0\n  Femme     45.3     54.7        100.0\n  Ensemble  50.7     49.3        100.0"
+  },
+  {
+    "objectID": "001-Data.html#recodage-des-niveaux-avec-irec",
+    "href": "001-Data.html#recodage-des-niveaux-avec-irec",
+    "title": "Préparation des données",
+    "section": "Recodage des niveaux avec irec()",
+    "text": "Recodage des niveaux avec irec()\nPrenons l’exemple de la variable X025A_01 qui donne le niveau scolaire du répondant selon la norme ISCED11. Si on lance la commande irec() appliquée à cette variable, on obtient une interface graphique indiquant les niveaux actuels de la variable :\n\ninclude_graphics(\"img/irec_ex001.jpg\")\n\n\n\n\nOn peut alors facilement les modifiers, par exemple en retirant les non-réponses et en regroupant les modalités en trois classes seulement :\n\ninclude_graphics(\"img/irec_ex003.jpg\")\n\n\n\n\nPuis on récupère le code R permettant d’efectuer facilement l’opération\n\n# Choix de la variable\nscol<-to_factor(base$X007)\n\n# Lancement de la fonction irec() - non exécutée ici \n#irec(scol)\n\n## Recodage de scol en scol_rec\nscol_rec <- as.character(scol)\nscol_rec[scol == \"Missing: Other\"] <- NA\nscol_rec[scol == \"Not asked\"] <- NA\nscol_rec[scol == \"Not applicable\"] <- NA\nscol_rec[scol == \"No answer\"] <- NA\nscol_rec[scol == \"Don't know\"] <- NA\nscol_rec[scol == \"Married\"] <- \"Est en couple\"\nscol_rec[scol == \"Living together as married\"] <- \"Est en couple\"\nscol_rec[scol == \"Divorced\"] <- \"N'est plus en couple\"\nscol_rec[scol == \"Separated\"] <- \"N'est plus en couple\"\nscol_rec[scol == \"Widowed\"] <- \"N'est plus en couple\"\nscol_rec[scol == \"Single/Never married\"] <- \"N'a jamais été en couple\"\n\n# Résultat\ntable(scol_rec)\n\nscol_rec\n           Est en couple N'a jamais été en couple     N'est plus en couple \n                   71706                    25219                    12292"
+  },
+  {
+    "objectID": "001-Data.html#ordre-des-niveaux-avec-iorder",
+    "href": "001-Data.html#ordre-des-niveaux-avec-iorder",
+    "title": "Préparation des données",
+    "section": "Ordre des niveaux avec iorder()",
+    "text": "Ordre des niveaux avec iorder()\nDans l’exemple précédent, on peut considérer que l’ordre n’est pas tout à fait logique par rapport au cycle de vie et on voudrait inverser la position des niveaux 1 et 2. On peut le faire manuellement avec les fonctions de R-base mais il est aussi possible d’utiliser à nouveau une interface de questionr appelée iorder() qui afficche l’ordre actuel des niveaux :\n\ninclude_graphics(\"img/iorder_ex001.jpg\")\n\n\n\n\n… et permet de les modifier facilement …\n\ninclude_graphics(\"img/iorder_ex002.jpg\")\n\n\n\n\n… avant de récupérer le code R :\n\n#iorder(scol_rec)\n\n\n## Réordonnancement de scol_rec\nscol_rec <- factor(scol_rec,\n  levels = c(\"N'a jamais été en couple\", \"Est en couple\", \"N'est plus en couple\")\n)\ntable(scol_rec)\n\nscol_rec\nN'a jamais été en couple            Est en couple     N'est plus en couple \n                   25219                    71706                    12292"
+  },
+  {
+    "objectID": "001-Data.html#récupération-dune-variable-quantitative",
+    "href": "001-Data.html#récupération-dune-variable-quantitative",
+    "title": "Préparation des données",
+    "section": "Récupération d’une variable quantitative",
+    "text": "Récupération d’une variable quantitative\nSupposons que nous souhaitions constituer des classes d’âge en découpant la variable X002. Une première difficulté vient du fait qu’il ne s’agit pas d’une variable purement quantitative du fait de la présence de modalités correspondant aux valeurs manquantes\n\nage<-to_factor(base$X003)\nniv_age<-levels(age)\nhead(niv_age,10)\n\n [1] \"Missing; Unknown\"    \"Not asked in survey\" \"Not applicable\"     \n [4] \"No answer\"           \"Don't know\"          \"15\"                 \n [7] \"16\"                  \"17\"                  \"18\"                 \n[10] \"19\"                 \n\nprint(\"...\")\n\n[1] \"...\"\n\ntail(niv_age,10)\n\n [1] \"92\"  \"93\"  \"94\"  \"95\"  \"96\"  \"97\"  \"98\"  \"99\"  \"100\" \"103\"\n\n\nOn commence donc par transformer la variable en valeurs numériques en enchaînant une conversion en caractère puis en numérique.\n\nN.B. : si on avait procédé à une conversion en factor puis en numérique on aurait abouti à un résultat différent et faux. Car ce qui aurait été converti en numérique aurait été l’ordre des facteurs et non pas les âges. Du coup la classe “18” qui correspond aux personnes âgées de 18 ans aurait été transformé en la valeur 9 puisque c’est la 9e modalité.\n\n\nage<-as.numeric(to_character(base$X003))\n\nWarning: NAs introduits lors de la conversion automatique\n\nsummary(age)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's \n  15.00   28.00   39.00   41.59   53.00  103.00     432 \n\n\nOn peut récupérer de la même manière la variable correspondant à l’année de naissance c’est-à-dire la génération.\n\ngen<-as.numeric(to_character(base$X002))\n\nWarning: NAs introduits lors de la conversion automatique\n\nsummary(gen)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's \n   1901    1954    1967    1966    1979    2002     433"
+  },
+  {
+    "objectID": "001-Data.html#découpage-dune-variable-quantitative-en-classes",
+    "href": "001-Data.html#découpage-dune-variable-quantitative-en-classes",
+    "title": "Préparation des données",
+    "section": "Découpage d’une variable quantitative en classes",
+    "text": "Découpage d’une variable quantitative en classes\nLa procédure normale est le découpage avec la fonction cut()de R-base. Par exemple pour faire des classes d’amplitudes égales :\n\nmini<-min(age,na.rm=T)\nmaxi<-max(age,na.rm=T)\nage4<-cut(age,breaks=c(mini,30,45,60,maxi),include.lowest = T)\ntable(age4)\n\nage4\n [15,30]  (30,45]  (45,60] (60,103] \n   34376    35981    24997    16861 \n\n\nOu des classes d’effectifs égaux :\n\nmyclass <- quantile(age, c(0,0.25,0.5,0.75,1), na.rm=T)\nage4<-cut(age,breaks=myclass,include.lowest = T)\ntable(age4)\n\nage4\n [15,28]  (28,39]  (39,53] (53,103] \n   28869    27680    27755    27911 \n\n\nLes classes obtenues peuvent être renommées si on leur donne une signification plus qualitative. Par exemple dans le cas des générations on pourrait faire quatre classes liées à l’histoire économoique et démographique.\n\n#icut(gen)\n## Recodage de gen en gen_rec\ngen4 <- cut(gen,\n  include.lowest = TRUE,\n  right = TRUE,\n  dig.lab = 4,\n breaks=c(1901,1944,1959,1974,2010)\n)\nlevels(gen4)<- c(\"Pre-Boomer (< 1945)\",\n                  \"Boomer I (1945-1959)\",\n                  \"Boomer II (1960-74)\",\n                 \"Post-Boomer (> 1974)\")\ntable(gen4)\n\ngen4\n Pre-Boomer (< 1945) Boomer I (1945-1959)  Boomer II (1960-74) \n               14116                24338                35307 \nPost-Boomer (> 1974) \n               38453 \n\n\nOn peut aussi se faire aider par la fonction ìcut() du package questionR qui offre une interfacte visuelle très pratique."
+  },
+  {
+    "objectID": "002-Test.html#en-1997-1",
+    "href": "002-Test.html#en-1997-1",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$age6\nY<-sel1$job_man\nW<-sel1$wgt\ntitre <- \"Travail des femmes / Âge (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Âge (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n- de 25 ans\n57\n50\n343\n\n\n30-39 ans\n78\n82\n343\n\n\n40-49 ans\n51\n80\n243\n\n\n50-59 ans\n43\n97\n175\n\n\n60-69 ans\n36\n68\n111\n\n\n70 ans et +\n29\n67\n66\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Âge (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\n- de 25 ans\n12.66667\n11.11111\n76.22222\n100\n\n\n30-39 ans\n15.50696\n16.30219\n68.19085\n100\n\n\n40-49 ans\n13.63636\n21.39037\n64.97326\n100\n\n\n50-59 ans\n13.65079\n30.79365\n55.55556\n100\n\n\n60-69 ans\n16.74419\n31.62791\n51.62791\n100\n\n\n70 ans et +\n17.90123\n41.35802\n40.74074\n100\n\n\nEnsemble\n14.56166\n21.99108\n63.44725\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 117.74, df = 10, p-value < 2.2e-16\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "002-Test.html#en-2018-1",
+    "href": "002-Test.html#en-2018-1",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$age6\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Âge (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Âge (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n- de 25 ans\n34\n13\n201\n\n\n30-39 ans\n14\n15\n172\n\n\n40-49 ans\n32\n18\n220\n\n\n50-59 ans\n35\n19\n245\n\n\n60-69 ans\n37\n26\n169\n\n\n70 ans et +\n42\n49\n186\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Âge (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\n- de 25 ans\n13.709677\n5.241936\n81.04839\n100\n\n\n30-39 ans\n6.965174\n7.462687\n85.57214\n100\n\n\n40-49 ans\n11.851852\n6.666667\n81.48148\n100\n\n\n50-59 ans\n11.705686\n6.354515\n81.93980\n100\n\n\n60-69 ans\n15.948276\n11.206897\n72.84483\n100\n\n\n70 ans et +\n15.162455\n17.689531\n67.14801\n100\n\n\nEnsemble\n12.704650\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 49.003, df = 10, p-value = 4.067e-07\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "002-Test.html#en-1997-2",
+    "href": "002-Test.html#en-1997-2",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$gen4\nY<-sel1$job_man\nW<-sel1$wgt\n\ntitre <- \"Travail des femmes / Génération (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Génération (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nPre-Boomer (< 1945)\n100\n208\n308\n\n\nBoomer I (1945-1959)\n63\n123\n341\n\n\nBoomer II (1960-74)\n120\n101\n536\n\n\nPost-Boomer (> 1974)\n11\n12\n96\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Génération (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nPre-Boomer (< 1945)\n16.233766\n33.76623\n50.00000\n100\n\n\nBoomer I (1945-1959)\n11.954459\n23.33966\n64.70588\n100\n\n\nBoomer II (1960-74)\n15.852048\n13.34214\n70.80581\n100\n\n\nPost-Boomer (> 1974)\n9.243697\n10.08403\n80.67227\n100\n\n\nEnsemble\n14.561664\n21.99108\n63.44725\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 109.23, df = 6, p-value < 2.2e-16\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "002-Test.html#en-2018-2",
+    "href": "002-Test.html#en-2018-2",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$gen4\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Génération (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Génération (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nPre-Boomer (< 1945)\n33\n44\n140\n\n\nBoomer I (1945-1959)\n52\n31\n251\n\n\nBoomer II (1960-74)\n52\n30\n378\n\n\nPost-Boomer (> 1974)\n57\n35\n424\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Génération (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nPre-Boomer (< 1945)\n15.20737\n20.276498\n64.51613\n100\n\n\nBoomer I (1945-1959)\n15.56886\n9.281437\n75.14970\n100\n\n\nBoomer II (1960-74)\n11.30435\n6.521739\n82.17391\n100\n\n\nPost-Boomer (> 1974)\n11.04651\n6.782946\n82.17054\n100\n\n\nEnsemble\n12.70465\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 48.548, df = 6, p-value = 9.181e-09\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html",
+    "href": "003-Logit.html",
+    "title": "Test du Chi-2",
+    "section": "",
+    "text": "On va réaliser une analyse de relations entre deux variables qualitatives pour un pays et comparer les résultats à deux périodes de temps."
+  },
+  {
+    "objectID": "003-Logit.html#recodage-des-facteurs",
+    "href": "003-Logit.html#recodage-des-facteurs",
+    "title": "Test du Chi-2",
+    "section": "Recodage des facteurs",
+    "text": "Recodage des facteurs\n\nlevels(sel$job_man)\n\n[1] \"Missing; Unknown\"    \"Not asked in survey\" \"Not applicable\"     \n[4] \"No answer\"           \"DonÂ´t know\"         \"Agree\"              \n[7] \"Disagree\"            \"Neither\"            \n\nlevels(sel$sex)<-c(NA,NA,NA,NA,\"Homme\",\"Femme\")\nlevels(sel$job_man)<-c(NA,NA,NA,NA,\"NSP\",\"D'accord\",\"Pas d'acccord\",\"NSP\")\nlevels(sel$job_nat)<-c(NA,NA,NA,NA,\"NSP\",\"D'accord\",\"Pas d'acccord\",\"NSP\")"
+  },
+  {
+    "objectID": "003-Logit.html#découpage-des-classes",
+    "href": "003-Logit.html#découpage-des-classes",
+    "title": "Test du Chi-2",
+    "section": "Découpage des classes",
+    "text": "Découpage des classes\n\nsel$age6<-cut(sel$age, breaks=c(15,29,39,49,59,69,110))\nlevels(sel$age6)<-c(\"- de 25 ans\",\n                    \"30-39 ans\",\n                    \"40-49 ans\",\n                    \"50-59 ans\",\n                    \"60-69 ans\",\n                    \"70 ans et +\")\nsel$gen4<-cut(sel$gen, breaks=c(1901,1944,1959,1974,2010))\nlevels(sel$gen4)<- c(\"Pre-Boomer (< 1945)\",\n                  \"Boomer I (1945-1959)\",\n                  \"Boomer II (1960-74)\",\n                 \"Post-Boomer (> 1974)\")"
+  },
+  {
+    "objectID": "003-Logit.html#division-par-période",
+    "href": "003-Logit.html#division-par-période",
+    "title": "Test du Chi-2",
+    "section": "Division par période",
+    "text": "Division par période\n\nsel1<-sel %>% filter(year <2000)\nsel2<-sel %>% filter(year>2000)"
+  },
+  {
+    "objectID": "003-Logit.html#résumé",
+    "href": "003-Logit.html#résumé",
+    "title": "Test du Chi-2",
+    "section": "Résumé",
+    "text": "Résumé\n\nsummary(sel1)\n\n                  pays           year           wgt       sex      \n Germany            :2026   Min.   :1997   Min.   :1   Homme: 928  \n Missing; Unknown   :   0   1st Qu.:1997   1st Qu.:1   Femme:1098  \n Not asked in survey:   0   Median :1997   Median :1               \n Not applicable     :   0   Mean   :1997   Mean   :1               \n No answer          :   0   3rd Qu.:1997   3rd Qu.:1               \n Don't know         :   0   Max.   :1997   Max.   :1               \n (Other)            :   0                                          \n      age             gen                job_man              job_nat    \n Min.   :18.00   Min.   :1907   NSP          : 295   NSP          : 202  \n 1st Qu.:30.00   1st Qu.:1941   D'accord     : 447   D'accord     :1140  \n Median :41.00   Median :1956   Pas d'acccord:1284   Pas d'acccord: 684  \n Mean   :43.61   Mean   :1953                                            \n 3rd Qu.:56.00   3rd Qu.:1967                                            \n Max.   :90.00   Max.   :1979                                            \n NA's   :7       NA's   :7                                               \n          age6                       gen4    \n - de 25 ans:450   Pre-Boomer (< 1945) :616  \n 30-39 ans  :503   Boomer I (1945-1959):527  \n 40-49 ans  :374   Boomer II (1960-74) :757  \n 50-59 ans  :315   Post-Boomer (> 1974):119  \n 60-69 ans  :215   NA's                :  7  \n 70 ans et +:162                             \n NA's       :  7                             \n\nsummary(sel2)\n\n                  pays           year           wgt       sex     \n Germany            :1528   Min.   :2018   Min.   :1   Homme:743  \n Missing; Unknown   :   0   1st Qu.:2018   1st Qu.:1   Femme:785  \n Not asked in survey:   0   Median :2018   Median :1              \n Not applicable     :   0   Mean   :2018   Mean   :1              \n No answer          :   0   3rd Qu.:2018   3rd Qu.:1              \n Don't know         :   0   Max.   :2018   Max.   :1              \n (Other)            :   0                                         \n      age            gen                job_man              job_nat   \n Min.   :18.0   Min.   :1921   NSP          : 194   NSP          :281  \n 1st Qu.:36.0   1st Qu.:1952   D'accord     : 140   D'accord     :414  \n Median :51.0   Median :1966   Pas d'acccord:1193   Pas d'acccord:824  \n Mean   :50.8   Mean   :1966   NA's         :   1   NA's         :  9  \n 3rd Qu.:65.0   3rd Qu.:1981                                           \n Max.   :96.0   Max.   :2000                                           \n                                                                       \n          age6                       gen4    \n - de 25 ans:248   Pre-Boomer (< 1945) :217  \n 30-39 ans  :201   Boomer I (1945-1959):335  \n 40-49 ans  :270   Boomer II (1960-74) :460  \n 50-59 ans  :299   Post-Boomer (> 1974):516  \n 60-69 ans  :233                             \n 70 ans et +:277"
+  },
+  {
+    "objectID": "003-Logit.html#création-du-tableau-de-contingence",
+    "href": "003-Logit.html#création-du-tableau-de-contingence",
+    "title": "Test du Chi-2",
+    "section": "Création du tableau de contingence",
+    "text": "Création du tableau de contingence\n\nX<-sel$year\nY<-sel$job_man\nW<-sel$wgt\ntc<- wtd.table(X,Y,W)\ntc\n\n      NSP D'accord Pas d'acccord\n1997  295      447          1284\n2018  194      140          1193"
+  },
+  {
+    "objectID": "003-Logit.html#profils-en-pourcentage",
+    "href": "003-Logit.html#profils-en-pourcentage",
+    "title": "Test du Chi-2",
+    "section": "Profils en pourcentage",
+    "text": "Profils en pourcentage\n\nlprop(tc)\n\n         NSP   D'accord Pas d'acccord Total\n1997      14.6  22.1     63.4         100.0\n2018      12.7   9.2     78.1         100.0\nEnsemble  13.8  16.5     69.7         100.0\n\ncprop(tc)\n\n      NSP   D'accord Pas d'acccord Ensemble\n1997   60.3  76.1     51.8          57.0   \n2018   39.7  23.9     48.2          43.0   \nTotal 100.0 100.0    100.0         100.0   \n\nprop(tc)\n\n      NSP   D'accord Pas d'acccord Total\n1997    8.3  12.6     36.1          57.0\n2018    5.5   3.9     33.6          43.0\nTotal  13.8  16.5     69.7         100.0"
+  },
+  {
+    "objectID": "003-Logit.html#visualisation",
+    "href": "003-Logit.html#visualisation",
+    "title": "Test du Chi-2",
+    "section": "Visualisation",
+    "text": "Visualisation\n\nplot(tc,col=c(\"gray\",\"yellow\",\"orange\"), main=\"Priorité au travail des hommes\")"
+  },
+  {
+    "objectID": "003-Logit.html#test-du-chi-2",
+    "href": "003-Logit.html#test-du-chi-2",
+    "title": "Test du Chi-2",
+    "section": "Test du chi-2",
+    "text": "Test du chi-2\n\ntk2 <- chisq.test(tc)\ntk2\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 116.99, df = 2, p-value < 2.2e-16"
+  },
+  {
+    "objectID": "003-Logit.html#résidus",
+    "href": "003-Logit.html#résidus",
+    "title": "Test du Chi-2",
+    "section": "Résidus",
+    "text": "Résidus\n\nkable(tk2$observed, caption = \"Valeurs observées\")\n\n\nValeurs observées\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n295\n447\n1284\n\n\n2018\n194\n140\n1193\n\n\n\n\nkable(tk2$expected, caption = \"Valeurs théoriques\")\n\n\nValeurs théoriques\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n278.8387\n334.7205\n1412.441\n\n\n2018\n210.1613\n252.2795\n1064.559\n\n\n\n\nkable(tk2$observed-tk2$expected, caption = \"Résidus bruts\", digits=1)\n\n\nRésidus bruts\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n16.2\n112.3\n-128.4\n\n\n2018\n-16.2\n-112.3\n128.4\n\n\n\n\nkable(tk2$residuals , caption = \"Résidus standardisés\", digits=2)\n\n\nRésidus standardisés\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n1997\n0.97\n6.14\n-3.42\n\n\n2018\n-1.11\n-7.07\n3.94"
+  },
+  {
+    "objectID": "003-Logit.html#visualisation-des-écarts-signifcatifs",
+    "href": "003-Logit.html#visualisation-des-écarts-signifcatifs",
+    "title": "Test du Chi-2",
+    "section": "Visualisation des écarts signifcatifs",
+    "text": "Visualisation des écarts signifcatifs\n\nmosaicplot(tc, shade =TRUE)"
+  },
+  {
+    "objectID": "003-Logit.html#en-1997",
+    "href": "003-Logit.html#en-1997",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$sex\nY<-sel1$job_man\nW<-sel1$wgt\ntitre <- \"Travail des femmes / Sexe (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Sexe (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nHomme\n162\n211\n555\n\n\nFemme\n133\n236\n729\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Sexe (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nHomme\n17.45690\n22.73707\n59.80603\n100\n\n\nFemme\n12.11293\n21.49362\n66.39344\n100\n\n\nEnsemble\n14.56071\n22.06318\n63.37611\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 13.66, df = 2, p-value = 0.001081\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html#en-2018",
+    "href": "003-Logit.html#en-2018",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$sex\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Sexe (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Sexe (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nHomme\n112\n77\n553\n\n\nFemme\n82\n63\n640\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Sexe (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nHomme\n15.09434\n10.377358\n74.52830\n100\n\n\nFemme\n10.44586\n8.025478\n81.52866\n100\n\n\nEnsemble\n12.70465\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 11.182, df = 2, p-value = 0.003732\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html#en-1997-1",
+    "href": "003-Logit.html#en-1997-1",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$age6\nY<-sel1$job_man\nW<-sel1$wgt\ntitre <- \"Travail des femmes / Âge (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Âge (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n- de 25 ans\n57\n50\n343\n\n\n30-39 ans\n78\n82\n343\n\n\n40-49 ans\n51\n80\n243\n\n\n50-59 ans\n43\n97\n175\n\n\n60-69 ans\n36\n68\n111\n\n\n70 ans et +\n29\n67\n66\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Âge (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\n- de 25 ans\n12.66667\n11.11111\n76.22222\n100\n\n\n30-39 ans\n15.50696\n16.30219\n68.19085\n100\n\n\n40-49 ans\n13.63636\n21.39037\n64.97326\n100\n\n\n50-59 ans\n13.65079\n30.79365\n55.55556\n100\n\n\n60-69 ans\n16.74419\n31.62791\n51.62791\n100\n\n\n70 ans et +\n17.90123\n41.35802\n40.74074\n100\n\n\nEnsemble\n14.56166\n21.99108\n63.44725\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 117.74, df = 10, p-value < 2.2e-16\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html#en-2018-1",
+    "href": "003-Logit.html#en-2018-1",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$age6\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Âge (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Âge (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\n- de 25 ans\n34\n13\n201\n\n\n30-39 ans\n14\n15\n172\n\n\n40-49 ans\n32\n18\n220\n\n\n50-59 ans\n35\n19\n245\n\n\n60-69 ans\n37\n26\n169\n\n\n70 ans et +\n42\n49\n186\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Âge (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\n- de 25 ans\n13.709677\n5.241936\n81.04839\n100\n\n\n30-39 ans\n6.965174\n7.462687\n85.57214\n100\n\n\n40-49 ans\n11.851852\n6.666667\n81.48148\n100\n\n\n50-59 ans\n11.705686\n6.354515\n81.93980\n100\n\n\n60-69 ans\n15.948276\n11.206897\n72.84483\n100\n\n\n70 ans et +\n15.162455\n17.689531\n67.14801\n100\n\n\nEnsemble\n12.704650\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 49.003, df = 10, p-value = 4.067e-07\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html#en-1997-2",
+    "href": "003-Logit.html#en-1997-2",
+    "title": "Test du Chi-2",
+    "section": "En 1997",
+    "text": "En 1997\n\nX<-sel1$gen4\nY<-sel1$job_man\nW<-sel1$wgt\n\ntitre <- \"Travail des femmes / Génération (Allemagne, 1997)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Génération (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nPre-Boomer (< 1945)\n100\n208\n308\n\n\nBoomer I (1945-1959)\n63\n123\n341\n\n\nBoomer II (1960-74)\n120\n101\n536\n\n\nPost-Boomer (> 1974)\n11\n12\n96\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Génération (Allemagne, 1997)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nPre-Boomer (< 1945)\n16.233766\n33.76623\n50.00000\n100\n\n\nBoomer I (1945-1959)\n11.954459\n23.33966\n64.70588\n100\n\n\nBoomer II (1960-74)\n15.852048\n13.34214\n70.80581\n100\n\n\nPost-Boomer (> 1974)\n9.243697\n10.08403\n80.67227\n100\n\n\nEnsemble\n14.561664\n21.99108\n63.44725\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 109.23, df = 6, p-value < 2.2e-16\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  },
+  {
+    "objectID": "003-Logit.html#en-2018-2",
+    "href": "003-Logit.html#en-2018-2",
+    "title": "Test du Chi-2",
+    "section": "En 2018",
+    "text": "En 2018\n\nX<-sel2$gen4\nY<-sel2$job_man\nW<-sel2$wgt\ntitre <- \"Travail des femmes / Génération (Allemagne, 2018)\"\n\n# Tableau de contingence\ntc<- wtd.table(X,Y,W)\nkable(tc, caption= titre)\n\n\nTravail des femmes / Génération (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\n\n\n\n\nPre-Boomer (< 1945)\n33\n44\n140\n\n\nBoomer I (1945-1959)\n52\n31\n251\n\n\nBoomer II (1960-74)\n52\n30\n378\n\n\nPost-Boomer (> 1974)\n57\n35\n424\n\n\n\n\n# Pourcentage en ligne\nkable(lprop(tc), caption = titre)\n\n\nTravail des femmes / Génération (Allemagne, 2018)\n\n\n\nNSP\nD’accord\nPas d’acccord\nTotal\n\n\n\n\nPre-Boomer (< 1945)\n15.20737\n20.276498\n64.51613\n100\n\n\nBoomer I (1945-1959)\n15.56886\n9.281437\n75.14970\n100\n\n\nBoomer II (1960-74)\n11.30435\n6.521739\n82.17391\n100\n\n\nPost-Boomer (> 1974)\n11.04651\n6.782946\n82.17054\n100\n\n\nEnsemble\n12.70465\n9.168304\n78.12705\n100\n\n\n\n\n# Test du chi2\ntest <- chisq.test(tc)\ntest\n\n\n    Pearson's Chi-squared test\n\ndata:  tc\nX-squared = 48.548, df = 6, p-value = 9.181e-09\n\n# Graphiques\n\nplot(tc,col=rainbow(n=10),main=titre, sub = \"Fréquences\")\n\n\n\nmosaicplot(tc,shade=T,main = titre, sub=\"Résidus\")"
+  }
+]

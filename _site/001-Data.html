@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Claude Grasland">
+
+<title>Analyse d’enquêtes avec R - Préparation des données</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Analyse d’enquêtes avec R</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./001-Data.html" aria-current="page">Préparation des données</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./002-Test.html">Test du Chi-2</a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#importation-des-données" id="toc-importation-des-données" class="nav-link" data-scroll-target="#importation-des-données">Importation des données</a>
+  <ul class="collapse">
+  <li><a href="#chargement-du-fichier-initial" id="toc-chargement-du-fichier-initial" class="nav-link" data-scroll-target="#chargement-du-fichier-initial">Chargement du fichier initial</a></li>
+  <li><a href="#visualisation-des-noms-des-variables-et-des-niveaux" id="toc-visualisation-des-noms-des-variables-et-des-niveaux" class="nav-link" data-scroll-target="#visualisation-des-noms-des-variables-et-des-niveaux">Visualisation des noms des variables et des niveaux</a></li>
+  <li><a href="#création-dun-tableau-des-variables-disponibles" id="toc-création-dun-tableau-des-variables-disponibles" class="nav-link" data-scroll-target="#création-dun-tableau-des-variables-disponibles">Création d’un tableau des variables disponibles</a></li>
+  <li><a href="#conversion-des-variables-haven_labelled-en-factor" id="toc-conversion-des-variables-haven_labelled-en-factor" class="nav-link" data-scroll-target="#conversion-des-variables-haven_labelled-en-factor">Conversion des variables haven_labelled en factor</a></li>
+  <li><a href="#une-solution-brutale" id="toc-une-solution-brutale" class="nav-link" data-scroll-target="#une-solution-brutale">Une solution brutale …</a></li>
+  </ul></li>
+  <li><a href="#recodage-et-transformation-des-variables" id="toc-recodage-et-transformation-des-variables" class="nav-link" data-scroll-target="#recodage-et-transformation-des-variables">Recodage et transformation des variables</a>
+  <ul class="collapse">
+  <li><a href="#exemple-de-recodage-manuel" id="toc-exemple-de-recodage-manuel" class="nav-link" data-scroll-target="#exemple-de-recodage-manuel">Exemple de recodage manuel</a></li>
+  <li><a href="#recodage-des-niveaux-avec-irec" id="toc-recodage-des-niveaux-avec-irec" class="nav-link" data-scroll-target="#recodage-des-niveaux-avec-irec">Recodage des niveaux avec <code>irec()</code></a></li>
+  <li><a href="#ordre-des-niveaux-avec-iorder" id="toc-ordre-des-niveaux-avec-iorder" class="nav-link" data-scroll-target="#ordre-des-niveaux-avec-iorder">Ordre des niveaux avec <code>iorder()</code></a></li>
+  <li><a href="#récupération-dune-variable-quantitative" id="toc-récupération-dune-variable-quantitative" class="nav-link" data-scroll-target="#récupération-dune-variable-quantitative">Récupération d’une variable quantitative</a></li>
+  <li><a href="#découpage-dune-variable-quantitative-en-classes" id="toc-découpage-dune-variable-quantitative-en-classes" class="nav-link" data-scroll-target="#découpage-dune-variable-quantitative-en-classes">Découpage d’une variable quantitative en classes</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Préparation des données</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Claude Grasland </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>L’objet de ce cours est de donner une introduction à l’analyse d’enquête dans R en présentant de façon aussi simple que possible les outils de haut niveau mis au point récemment par des ingénieurs français pouur rendre pluus accessible les tâches de préparation des données, recodage, description, test et modélisation. Nous sommes à cet égard particulièrement redevable à deux auteurs, <strong>Julien Barnier</strong> et <strong>Joseph Larmarange</strong> qui ont crée ou contribué au développement de packages qui simplifient grandement le travail ainsi qu’à des sites pédagogiques d’exemples.</p>
+<p>Notre contribution personnelle consiste principalement ici à implémenter leurs travaux sur un nouvel exemple d’application, celui des données de la World Value Survey dont nous avons extrait un échantillon composé de pays présents dans la vague la plus récente et dans une vague ancienne afin de pouvoir (1) suivre des évolutions à l’échelle d’une génération et (2) comparer des pays entre eux.</p>
+</section>
+<section id="importation-des-données" class="level1">
+<h1>Importation des données</h1>
+<section id="chargement-du-fichier-initial" class="level2">
+<h2 class="anchored" data-anchor-id="chargement-du-fichier-initial">Chargement du fichier initial</h2>
+<p>Le fichier utilisé est composé de variables au format <em>haven_labelled</em> qui est un type bien adapté au stockage des données d’enquête mais est initialement plus difficile à comprendre que les formats habituellement utilisés dans R. Il suppose en effet le chargement du package <code>labelled</code>pour en exploiter toutes les possibilités. On trouvera tous les détails sur ce format dans la page que lui a consacré Joseph Larmarange :</p>
+<p>https://larmarange.github.io/labelled/</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>base<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"data/WVS_exo.RDS"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(base))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 5%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 5%">
+<col style="width: 3%">
+<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">S002</th>
+<th style="text-align: right;">S003</th>
+<th style="text-align: right;">S020</th>
+<th style="text-align: left;">S009</th>
+<th style="text-align: right;">S017</th>
+<th style="text-align: right;">X001</th>
+<th style="text-align: right;">X002</th>
+<th style="text-align: right;">X003</th>
+<th style="text-align: right;">X007</th>
+<th style="text-align: right;">X025R</th>
+<th style="text-align: right;">X025A_01</th>
+<th style="text-align: right;">X028</th>
+<th style="text-align: right;">X047R_WVS</th>
+<th style="text-align: right;">X047_WVS</th>
+<th style="text-align: right;">X049</th>
+<th style="text-align: right;">A008</th>
+<th style="text-align: right;">A170</th>
+<th style="text-align: right;">C001</th>
+<th style="text-align: right;">C002</th>
+<th style="text-align: right;">D059</th>
+<th style="text-align: right;">D060</th>
+<th style="text-align: right;">E035</th>
+<th style="text-align: right;">E036</th>
+<th style="text-align: right;">F050</th>
+<th style="text-align: right;">F118</th>
+<th style="text-align: right;">F120</th>
+<th style="text-align: right;">F121</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.124528</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1948</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.124528</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1973</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.124528</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1943</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.124528</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1927</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.124528</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1947</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1995</td>
+<td style="text-align: left;">AR</td>
+<td style="text-align: right;">1.255462</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1969</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">-4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A première vue le fichier n’est d’aspect pas très sympathique puisque les noms de colonnes ne permettent pas de deviner la variable (X001, X002, X003, …) et que le contenu est manifestement lui-même codé. Toutefois, si l’on regarde dans la fenêtre Environnement de R Studio, on voit qu’il y a beaucouo plus de renseignements.</p>
+</section>
+<section id="visualisation-des-noms-des-variables-et-des-niveaux" class="level2">
+<h2 class="anchored" data-anchor-id="visualisation-des-noms-des-variables-et-des-niveaux">Visualisation des noms des variables et des niveaux</h2>
+<p>Prenons à titre d’exemple la variable X007. Deux fonctions du package <code>labelled</code> permettent de connaître le nom de la variable (avec <code>var_label</code>) et celui de chacun de ses niveaux (avec <code>val_labels</code>) :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var_label</span>(base<span class="sc">$</span>X007)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Marital status"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">val_labels</span>(base<span class="sc">$</span>X007)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Missing: Other                  Not asked 
+                        -5                         -4 
+            Not applicable                  No answer 
+                        -3                         -2 
+                Don't know                    Married 
+                        -1                          1 
+Living together as married                   Divorced 
+                         2                          3 
+                 Separated                    Widowed 
+                         4                          5 
+      Single/Never married 
+                         6 </code></pre>
+</div>
+</div>
+<p>La variable en question était donc le statut matrimonial de la personne. Elle comporte 11 modalités correspondant soit à différentes formes de non-réponses (-5 à -1) soit à des réponses (1 à 6).</p>
+<p>Les fonctions classiques de R-base ne permettent cependant pas de traiter directement la variable. Si on execute par exemple la fonction <code>table()</code> on obtient le dénombrement des modalités mais sans les labels des modalités.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(base<span class="sc">$</span>X007)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+   -5    -4    -2    -1     1     2     3     4     5     6 
+   33  3029   286    82 65538  6168  3960  2150  6182 25219 </code></pre>
+</div>
+</div>
+</section>
+<section id="création-dun-tableau-des-variables-disponibles" class="level2">
+<h2 class="anchored" data-anchor-id="création-dun-tableau-des-variables-disponibles">Création d’un tableau des variables disponibles</h2>
+<p>Un petit programme permet de recenser la liste des variables présentes dans le tableau</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>labvar<span class="ot">&lt;-</span><span class="fu">var_label</span>(base)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>tab_labvar<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">code =</span> <span class="fu">names</span>(labvar),<span class="at">def =</span> <span class="fu">as.character</span>(labvar))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tab_labvar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 89%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">code</th>
+<th style="text-align: left;">def</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">S002</td>
+<td style="text-align: left;">WVS-wave</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">S003</td>
+<td style="text-align: left;">Country (ISO 3166-1 Numeric code)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">S020</td>
+<td style="text-align: left;">Year survey</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">S009</td>
+<td style="text-align: left;">Country (ISO 3166-1 Alpha-2 code)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">S017</td>
+<td style="text-align: left;">Weight</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">X001</td>
+<td style="text-align: left;">Sex</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">X002</td>
+<td style="text-align: left;">Year of birth</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">X003</td>
+<td style="text-align: left;">Age</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">X007</td>
+<td style="text-align: left;">Marital status</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">X025R</td>
+<td style="text-align: left;">Educational level respondent: recoded</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">X025A_01</td>
+<td style="text-align: left;">Educational level respondent: ISCED 11 â€ one digit</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">X028</td>
+<td style="text-align: left;">Employment status</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">X047R_WVS</td>
+<td style="text-align: left;">Subjective income level (recoded in 3 groups)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">X047_WVS</td>
+<td style="text-align: left;">Scale of incomes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">X049</td>
+<td style="text-align: left;">Size of town</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">A008</td>
+<td style="text-align: left;">Feeling of happiness</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">A170</td>
+<td style="text-align: left;">Satisfaction with your life</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">C001</td>
+<td style="text-align: left;">Jobs scarce: Men should have more right to a job than women (3 categories)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C002</td>
+<td style="text-align: left;">Jobs scarce: Employers should give priority to (nation) people than immigrants (</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D059</td>
+<td style="text-align: left;">Men make better political leaders than women do</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">D060</td>
+<td style="text-align: left;">University is more important for a boy than for a girl</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">E035</td>
+<td style="text-align: left;">Income equality</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E036</td>
+<td style="text-align: left;">Private vs state ownership of business</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F050</td>
+<td style="text-align: left;">Believe in: God</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F118</td>
+<td style="text-align: left;">Justifiable: Homosexuality</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F120</td>
+<td style="text-align: left;">Justifiable: Abortion</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F121</td>
+<td style="text-align: left;">Justifiable: Divorce</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On peut voir que notre extrait se compose à la fois de variables de cadrage (pays, date de l’enquête), de variables indépendantes explicatives (âge, sexe, revenu, …) et de variables dépendantes à expliquer (sentiment de bonheur, opinion sur les inégalités de revenu, statut des femmes dans la société, …)</p>
+</section>
+<section id="conversion-des-variables-haven_labelled-en-factor" class="level2">
+<h2 class="anchored" data-anchor-id="conversion-des-variables-haven_labelled-en-factor">Conversion des variables haven_labelled en factor</h2>
+<p>Pour faciliter les traitements statistiques dans R, il est préférable de revenir à un format plus standard qui est le type <code>factor</code>. La conversion n’est à première vue pas très compliquée mais elle peut conduire à des difficultés qui sont le plus souvent faciles à résoudre en utilisant le package <code>questionr</code>.</p>
+<p>Dans les cas les plus simples, il suffit d’utiliser la fonction <code>to_factor</code> du package labelled. Comme on peut le voir-ci-dessous, la variable X007 (de type <em>haven_labelled</em>) est transformée en une variable marital (de type <em>factor</em>) sur laquelle on peut désormais appliquer les fonctions de R-base.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>marital <span class="ot">&lt;-</span> <span class="fu">to_factor</span>(base<span class="sc">$</span>X007)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(marital)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "factor"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">table</span>(marital))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">marital</th>
+<th style="text-align: right;">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Missing: Other</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Not asked</td>
+<td style="text-align: right;">3029</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Not applicable</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">No answer</td>
+<td style="text-align: right;">286</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Don’t know</td>
+<td style="text-align: right;">82</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Married</td>
+<td style="text-align: right;">65538</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Living together as married</td>
+<td style="text-align: right;">6168</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Divorced</td>
+<td style="text-align: right;">3960</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Separated</td>
+<td style="text-align: right;">2150</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Widowed</td>
+<td style="text-align: right;">6182</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Single/Never married</td>
+<td style="text-align: right;">25219</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Mais il peut arriver que la conversion aboutisse à un résultat non satisfaisant, par exemple dans le cas de la variable S003 qui donne le nom complet du pays d’enquête non seulement pour ceux qui sont présent dans le tableau mais dans tous les territoires, pays ou non, ayant servi de lieu d’enquête soit 239 possibilités :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pays <span class="ot">&lt;-</span> <span class="fu">to_factor</span>(base<span class="sc">$</span>S003)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>nom_pays<span class="ot">&lt;-</span><span class="fu">levels</span>(pays)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nom_pays,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Missing; Unknown"    "Not asked in survey" "Not applicable"     
+ [4] "No answer"           "Don't know"          "Afghanistan"        
+ [7] "Albania"             "Algeria"             "American Samoa"     
+[10] "Andorra"            </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"..."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "..."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(nom_pays,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Syrian refugees Lebanon" "Scotland"               
+ [3] "Dijibouti"               "Latin America"          
+ [5] "North America"           "Asia"                   
+ [7] "Europe"                  "Africa"                 
+ [9] "A Pacific Island"        "Other"                  </code></pre>
+</div>
+</div>
+<p>Beaucoup de niveaux sont donc inutiles. On peut résoudre le problème en transformant la variable en caractère avant de la retransformer en factor. Le passage en caractère détruit en effet les niveaux inuutilisés.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>nom_pays <span class="ot">&lt;-</span> <span class="fu">to_character</span>(base<span class="sc">$</span>S003)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(nom_pays)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>nom_pays<span class="ot">&lt;-</span><span class="fu">as.factor</span>(nom_pays)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(nom_pays)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "factor"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">table</span>(nom_pays))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">nom_pays</th>
+<th style="text-align: right;">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Argentina</td>
+<td style="text-align: right;">2082</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Australia</td>
+<td style="text-align: right;">3861</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bangladesh</td>
+<td style="text-align: right;">2725</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Brazil</td>
+<td style="text-align: right;">2905</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Canada</td>
+<td style="text-align: right;">5949</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chile</td>
+<td style="text-align: right;">2000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">China</td>
+<td style="text-align: right;">4536</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Colombia</td>
+<td style="text-align: right;">7545</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Egypt</td>
+<td style="text-align: right;">4200</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Germany</td>
+<td style="text-align: right;">3554</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Indonesia</td>
+<td style="text-align: right;">4200</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Iran</td>
+<td style="text-align: right;">4031</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Iraq</td>
+<td style="text-align: right;">3525</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Japan</td>
+<td style="text-align: right;">2407</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Jordan</td>
+<td style="text-align: right;">2426</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kyrgyzstan</td>
+<td style="text-align: right;">2243</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Macau SAR</td>
+<td style="text-align: right;">1023</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mexico</td>
+<td style="text-align: right;">3249</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">New Zealand</td>
+<td style="text-align: right;">2258</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Nigeria</td>
+<td style="text-align: right;">3233</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">North Macedonia</td>
+<td style="text-align: right;">995</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pakistan</td>
+<td style="text-align: right;">2728</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Peru</td>
+<td style="text-align: right;">2611</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Philippines</td>
+<td style="text-align: right;">2400</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Puerto Rico</td>
+<td style="text-align: right;">2291</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Romania</td>
+<td style="text-align: right;">2496</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Russia</td>
+<td style="text-align: right;">3850</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Serbia</td>
+<td style="text-align: right;">2326</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Singapore</td>
+<td style="text-align: right;">3524</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">South Korea</td>
+<td style="text-align: right;">2494</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Taiwan ROC</td>
+<td style="text-align: right;">2003</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Turkey</td>
+<td style="text-align: right;">4322</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ukraine</td>
+<td style="text-align: right;">4100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">United States</td>
+<td style="text-align: right;">4138</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Vietnam</td>
+<td style="text-align: right;">2200</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Zimbabwe</td>
+<td style="text-align: right;">2217</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="une-solution-brutale" class="level2">
+<h2 class="anchored" data-anchor-id="une-solution-brutale">Une solution brutale …</h2>
+<p>Si on ne souhaite vraiment pas s’embarasser de difficultés, on peut procéder à la transformation simultanée de touutes les variables <code>haven_labelled</code> en variables de type <code>factor</code>. Puis on peut convertir le tableau en pur data.frame si on ne souhaite pas utiliser les propriétés du package tidyverse.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tb<span class="ot">&lt;-</span><span class="fu">to_factor</span>(base)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(tb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "tbl_df"     "tbl"        "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(tb)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="recodage-et-transformation-des-variables" class="level1">
+<h1>Recodage et transformation des variables</h1>
+<p>Une fois importées les variables dans un format standard, plusieuurs opérations de recodage et de transformation vont être menées en amont de l’analyse statistique. Il est ici fortement recommandé d’utiliser le package <code>questionr</code> qui offre des outils simples et performants et évite de se plonger tout de suite dans des lignes de code très complexes. Le recodage des facteurs est en effet une opération cruciale mais difficile aussi bien sur le plan conceptuel que sur le plan technique.</p>
+<p>https://juba.github.io/questionr/</p>
+<section id="exemple-de-recodage-manuel" class="level2">
+<h2 class="anchored" data-anchor-id="exemple-de-recodage-manuel">Exemple de recodage manuel</h2>
+<p>Un cas fréquent de recodage est le fait de ne conserver que les réponses et de déclare en valeurs manquantes les non-réponses ou les refus de répondre. Considérons à titre d’exemple la question C001 qui porte sur la priorité à donner aux hommes plutôt qu’aux femmes lorsque le travail est rare et essayons de la croiser avec la variable X001 qui est le sexe de la personne enquêtée.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span><span class="fu">to_factor</span>(base<span class="sc">$</span>C001)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Y
+   Missing; Unknown Not asked in survey      Not applicable           No answer 
+                 42                3029                   0                 210 
+        DonÂ´t know               Agree            Disagree             Neither 
+               1246               45554               44378               18188 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span><span class="fu">to_factor</span>(base<span class="sc">$</span>X001)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>X
+Missing; Unknown        Not asked        No answer      DonÂ´t know 
+              25                0               28               29 
+            Male           Female 
+           53891            58674 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(X,Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  Y
+X                  Missing; Unknown Not asked in survey Not applicable
+  Missing; Unknown                3                   0              0
+  Not asked                       0                   0              0
+  No answer                       0                   0              0
+  DonÂ´t know                     0                   0              0
+  Male                           17                1501              0
+  Female                         22                1528              0
+                  Y
+X                  No answer DonÂ´t know Agree Disagree Neither
+  Missing; Unknown         0           1     4       13       4
+  Not asked                0           0     0        0       0
+  No answer                3           0     5       19       1
+  DonÂ´t know              0           0     8        4      17
+  Male                    94         511 24100    18463    9205
+  Female                 113         734 21437    25879    8961</code></pre>
+</div>
+</div>
+<p>Si l’on veut procéder à une analyse statistique, il va être nécessaire de ne conserver que les personnes qui ont répodu à la question d’opinion et dont on connaît le sexe.</p>
+<p>Un recodage “classique” dans R suppose une démarche assez laborieuse</p>
+<ul>
+<li>pour Y</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examen des niveaux de Y</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Missing; Unknown"    "Not asked in survey" "Not applicable"     
+[4] "No answer"           "DonÂ´t know"         "Agree"              
+[7] "Disagree"            "Neither"            </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recodage de Y</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(Y)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="st">"D'accord"</span>,<span class="st">"Pas d'accord"</span>,<span class="st">"Ni l'un ni l'autre"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dénombrement de Y</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Y
+          D'accord       Pas d'accord Ni l'un ni l'autre 
+             45554              44378              18188 </code></pre>
+</div>
+</div>
+<ul>
+<li>puis pour X</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examen des niveaux de Y</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Missing; Unknown" "Not asked"        "No answer"        "DonÂ´t know"     
+[5] "Male"             "Female"          </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recodage de X</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(X)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="st">"Homme"</span>,<span class="st">"Femme"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dénombrement de Y</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>X
+Homme Femme 
+53891 58674 </code></pre>
+</div>
+</div>
+<ul>
+<li>avant de pouvoir afficher le tableau de contingence et le pourcentage de réponses en ligne (avec la fonction <code>lprop</code> du package <code>questionr</code>)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tc <span class="ot">&lt;-</span><span class="fu">table</span>(X,Y)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>tc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Y
+X       D'accord Pas d'accord Ni l'un ni l'autre
+  Homme    24100        18463               9205
+  Femme    21437        25879               8961</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lprop</span>(tc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Y
+X          D'accord Pas d'accord Ni l'un ni l'autre Total
+  Homme     46.6     35.7         17.8              100.0
+  Femme     38.1     46.0         15.9              100.0
+  Ensemble  42.1     41.0         16.8              100.0</code></pre>
+</div>
+</div>
+<p>On peut ensuite se demander si l’on veut réellement conserver les réponses “neutres” du type “<em>ni l’un ni l’autre</em>”. Si on pense qu’elles ne sont pas pertinentes, on va procéder à un nouveau recodage de Y</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Examen des niveaux de Y</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>Y2<span class="ot">&lt;-</span>Y</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(Y2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "D'accord"           "Pas d'accord"       "Ni l'un ni l'autre"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recodage de Y</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(Y2)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"D'accord"</span>,<span class="st">"Pas d'accord"</span>,<span class="cn">NA</span>)</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tableau de contingence XY</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>tc2<span class="ot">&lt;-</span><span class="fu">table</span>(X,Y2)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>tc2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       Y2
+X       D'accord Pas d'accord
+  Homme    24100        18463
+  Femme    21437        25879</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lprop</span>(tc2,<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Y2
+X          D'accord Pas d'accord Total
+  Homme     56.6     43.4        100.0
+  Femme     45.3     54.7        100.0
+  Ensemble  50.7     49.3        100.0</code></pre>
+</div>
+</div>
+</section>
+<section id="recodage-des-niveaux-avec-irec" class="level2">
+<h2 class="anchored" data-anchor-id="recodage-des-niveaux-avec-irec">Recodage des niveaux avec <code>irec()</code></h2>
+<p>Prenons l’exemple de la variable X025A_01 qui donne le niveau scolaire du répondant selon la norme ISCED11. Si on lance la commande irec() appliquée à cette variable, on obtient une interface graphique indiquant les niveaux actuels de la variable :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include_graphics</span>(<span class="st">"img/irec_ex001.jpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="img/irec_ex001.jpg" class="img-fluid" width="1024"></p>
+</div>
+</div>
+<p>On peut alors facilement les modifiers, par exemple en retirant les non-réponses et en regroupant les modalités en trois classes seulement :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include_graphics</span>(<span class="st">"img/irec_ex003.jpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="img/irec_ex003.jpg" class="img-fluid" width="1024"></p>
+</div>
+</div>
+<p>Puis on récupère le code R permettant d’efectuer facilement l’opération</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Choix de la variable</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>scol<span class="ot">&lt;-</span><span class="fu">to_factor</span>(base<span class="sc">$</span>X007)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Lancement de la fonction irec() - non exécutée ici </span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="co">#irec(scol)</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Recodage de scol en scol_rec</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>scol_rec <span class="ot">&lt;-</span> <span class="fu">as.character</span>(scol)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Missing: Other"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Not asked"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Not applicable"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"No answer"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Don't know"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Married"</span>] <span class="ot">&lt;-</span> <span class="st">"Est en couple"</span></span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Living together as married"</span>] <span class="ot">&lt;-</span> <span class="st">"Est en couple"</span></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Divorced"</span>] <span class="ot">&lt;-</span> <span class="st">"N'est plus en couple"</span></span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Separated"</span>] <span class="ot">&lt;-</span> <span class="st">"N'est plus en couple"</span></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Widowed"</span>] <span class="ot">&lt;-</span> <span class="st">"N'est plus en couple"</span></span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>scol_rec[scol <span class="sc">==</span> <span class="st">"Single/Never married"</span>] <span class="ot">&lt;-</span> <span class="st">"N'a jamais été en couple"</span></span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Résultat</span></span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(scol_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>scol_rec
+           Est en couple N'a jamais été en couple     N'est plus en couple 
+                   71706                    25219                    12292 </code></pre>
+</div>
+</div>
+</section>
+<section id="ordre-des-niveaux-avec-iorder" class="level2">
+<h2 class="anchored" data-anchor-id="ordre-des-niveaux-avec-iorder">Ordre des niveaux avec <code>iorder()</code></h2>
+<p>Dans l’exemple précédent, on peut considérer que l’ordre n’est pas tout à fait logique par rapport au cycle de vie et on voudrait inverser la position des niveaux 1 et 2. On peut le faire manuellement avec les fonctions de R-base mais il est aussi possible d’utiliser à nouveau une interface de questionr appelée <code>iorder()</code> qui afficche l’ordre actuel des niveaux :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include_graphics</span>(<span class="st">"img/iorder_ex001.jpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="img/iorder_ex001.jpg" class="img-fluid" width="1024"></p>
+</div>
+</div>
+<p>… et permet de les modifier facilement …</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">include_graphics</span>(<span class="st">"img/iorder_ex002.jpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="img/iorder_ex002.jpg" class="img-fluid" width="1024"></p>
+</div>
+</div>
+<p>… avant de récupérer le code R :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">#iorder(scol_rec)</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Réordonnancement de scol_rec</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>scol_rec <span class="ot">&lt;-</span> <span class="fu">factor</span>(scol_rec,</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"N'a jamais été en couple"</span>, <span class="st">"Est en couple"</span>, <span class="st">"N'est plus en couple"</span>)</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(scol_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>scol_rec
+N'a jamais été en couple            Est en couple     N'est plus en couple 
+                   25219                    71706                    12292 </code></pre>
+</div>
+</div>
+</section>
+<section id="récupération-dune-variable-quantitative" class="level2">
+<h2 class="anchored" data-anchor-id="récupération-dune-variable-quantitative">Récupération d’une variable quantitative</h2>
+<p>Supposons que nous souhaitions constituer des classes d’âge en découpant la variable X002. Une première difficulté vient du fait qu’il ne s’agit pas d’une variable purement quantitative du fait de la présence de modalités correspondant aux valeurs manquantes</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>age<span class="ot">&lt;-</span><span class="fu">to_factor</span>(base<span class="sc">$</span>X003)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>niv_age<span class="ot">&lt;-</span><span class="fu">levels</span>(age)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(niv_age,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Missing; Unknown"    "Not asked in survey" "Not applicable"     
+ [4] "No answer"           "Don't know"          "15"                 
+ [7] "16"                  "17"                  "18"                 
+[10] "19"                 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"..."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "..."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(niv_age,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "92"  "93"  "94"  "95"  "96"  "97"  "98"  "99"  "100" "103"</code></pre>
+</div>
+</div>
+<p>On commence donc par transformer la variable en valeurs numériques en enchaînant une conversion <strong>en caractère puis en numérique</strong>.</p>
+<ul>
+<li><strong>N.B.</strong> : si on avait procédé à une conversion <strong>en factor puis en numérique</strong> on aurait abouti à un résultat différent et faux. Car ce qui aurait été converti en numérique aurait été l’ordre des facteurs et non pas les âges. Du coup la classe “18” qui correspond aux personnes âgées de 18 ans aurait été transformé en la valeur 9 puisque c’est la 9e modalité.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>age<span class="ot">&lt;-</span><span class="fu">as.numeric</span>(<span class="fu">to_character</span>(base<span class="sc">$</span>X003))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: NAs introduits lors de la conversion automatique</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(age)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+  15.00   28.00   39.00   41.59   53.00  103.00     432 </code></pre>
+</div>
+</div>
+<p>On peut récupérer de la même manière la variable correspondant à l’année de naissance c’est-à-dire la génération.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>gen<span class="ot">&lt;-</span><span class="fu">as.numeric</span>(<span class="fu">to_character</span>(base<span class="sc">$</span>X002))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: NAs introduits lors de la conversion automatique</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(gen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+   1901    1954    1967    1966    1979    2002     433 </code></pre>
+</div>
+</div>
+</section>
+<section id="découpage-dune-variable-quantitative-en-classes" class="level2">
+<h2 class="anchored" data-anchor-id="découpage-dune-variable-quantitative-en-classes">Découpage d’une variable quantitative en classes</h2>
+<p>La procédure normale est le découpage avec la fonction <code>cut()</code>de R-base. Par exemple pour faire des classes d’amplitudes égales :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>mini<span class="ot">&lt;-</span><span class="fu">min</span>(age,<span class="at">na.rm=</span>T)</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>maxi<span class="ot">&lt;-</span><span class="fu">max</span>(age,<span class="at">na.rm=</span>T)</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>age4<span class="ot">&lt;-</span><span class="fu">cut</span>(age,<span class="at">breaks=</span><span class="fu">c</span>(mini,<span class="dv">30</span>,<span class="dv">45</span>,<span class="dv">60</span>,maxi),<span class="at">include.lowest =</span> T)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(age4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>age4
+ [15,30]  (30,45]  (45,60] (60,103] 
+   34376    35981    24997    16861 </code></pre>
+</div>
+</div>
+<p>Ou des classes d’effectifs égaux :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>myclass <span class="ot">&lt;-</span> <span class="fu">quantile</span>(age, <span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="fl">0.5</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">na.rm=</span>T)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>age4<span class="ot">&lt;-</span><span class="fu">cut</span>(age,<span class="at">breaks=</span>myclass,<span class="at">include.lowest =</span> T)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(age4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>age4
+ [15,28]  (28,39]  (39,53] (53,103] 
+   28869    27680    27755    27911 </code></pre>
+</div>
+</div>
+<p>Les classes obtenues peuvent être renommées si on leur donne une signification plus qualitative. Par exemple dans le cas des générations on pourrait faire quatre classes liées à l’histoire économoique et démographique.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co">#icut(gen)</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Recodage de gen en gen_rec</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>gen4 <span class="ot">&lt;-</span> <span class="fu">cut</span>(gen,</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">include.lowest =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">dig.lab =</span> <span class="dv">4</span>,</span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a> <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">1901</span>,<span class="dv">1944</span>,<span class="dv">1959</span>,<span class="dv">1974</span>,<span class="dv">2010</span>)</span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(gen4)<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Pre-Boomer (&lt; 1945)"</span>,</span>
+<span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Boomer I (1945-1959)"</span>,</span>
+<span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Boomer II (1960-74)"</span>,</span>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Post-Boomer (&gt; 1974)"</span>)</span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(gen4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>gen4
+ Pre-Boomer (&lt; 1945) Boomer I (1945-1959)  Boomer II (1960-74) 
+               14116                24338                35307 
+Post-Boomer (&gt; 1974) 
+               38453 </code></pre>
+</div>
+</div>
+<p>On peut aussi se faire aider par la fonction <code>ìcut()</code> du package questionR qui offre une interfacte visuelle très pratique.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

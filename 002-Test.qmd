@@ -1,0 +1,320 @@
+---
+title: "Test du Chi-2"
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(questionr)
+library(labelled)
+library(knitr)
+library(dplyr)
+```
+
+## Objectif
+
+On va réaliser une analyse de relations entre deux variables qualitatives pour un pays et comparer les résultats à deux périodes de temps.
+
+# Préparation des données
+
+### Sélection des variables
+
+```{r}
+base<-readRDS(file = "data/WVS_exo.RDS")
+sel<-base %>% select(pays = S003, 
+                     year = S020,
+                     wgt = S017,
+                     sex = X001,
+                     age = X003,
+                     gen  = X002,
+                     job_man = C001,
+                     job_nat = C002) %>%
+              mutate(pays = to_factor(pays),
+                     year = as.numeric(to_character(year)),
+                     sex = to_factor(sex),
+                     age = as.numeric(to_character(age)),
+                     gen = as.numeric(to_character(gen)),
+                     job_man=to_factor(job_man),
+                     job_nat = to_factor(job_nat)
+                     ) %>%
+                filter(pays=="Germany")
+  
+
+```
+
+## Recodage des facteurs
+
+```{r}
+levels(sel$job_man)
+levels(sel$sex)<-c(NA,NA,NA,NA,"Homme","Femme")
+levels(sel$job_man)<-c(NA,NA,NA,NA,"NSP","D'accord","Pas d'acccord","NSP")
+levels(sel$job_nat)<-c(NA,NA,NA,NA,"NSP","D'accord","Pas d'acccord","NSP")
+```
+
+## Découpage des classes
+
+```{r}
+sel$age6<-cut(sel$age, breaks=c(15,29,39,49,59,69,110))
+levels(sel$age6)<-c("- de 25 ans",
+                    "30-39 ans",
+                    "40-49 ans",
+                    "50-59 ans",
+                    "60-69 ans",
+                    "70 ans et +")
+sel$gen4<-cut(sel$gen, breaks=c(1901,1944,1959,1974,2010))
+levels(sel$gen4)<- c("Pre-Boomer (< 1945)",
+                  "Boomer I (1945-1959)",
+                  "Boomer II (1960-74)",
+                 "Post-Boomer (> 1974)")
+
+```
+
+## Division par période
+
+```{r}
+sel1<-sel %>% filter(year <2000)
+sel2<-sel %>% filter(year>2000)
+```
+
+## Résumé
+
+```{r}
+summary(sel1)
+summary(sel2)
+```
+
+# Evolution de l'opinion au cours du temps
+
+## Création du tableau de contingence
+
+```{r}
+X<-sel$year
+Y<-sel$job_man
+W<-sel$wgt
+tc<- wtd.table(X,Y,W)
+tc
+```
+
+## Profils en pourcentage
+
+```{r}
+lprop(tc)
+cprop(tc)
+prop(tc)
+```
+
+## Visualisation
+
+```{r}
+plot(tc,col=c("gray","yellow","orange"), main="Priorité au travail des hommes")
+```
+
+## Test du chi-2
+
+```{r}
+tk2 <- chisq.test(tc)
+tk2
+```
+
+## Résidus
+
+```{r}
+kable(tk2$observed, caption = "Valeurs observées")
+kable(tk2$expected, caption = "Valeurs théoriques")
+kable(tk2$observed-tk2$expected, caption = "Résidus bruts", digits=1)
+kable(tk2$residuals , caption = "Résidus standardisés", digits=2)
+```
+
+## Visualisation des écarts signifcatifs
+
+```{r}
+mosaicplot(tc, shade =TRUE)
+```
+
+# Variation selon le sexe
+
+## En 1997
+
+```{r}
+X<-sel1$sex
+Y<-sel1$job_man
+W<-sel1$wgt
+titre <- "Travail des femmes / Sexe (Allemagne, 1997)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+
+```
+
+## En 2018
+
+```{r}
+X<-sel2$sex
+Y<-sel2$job_man
+W<-sel2$wgt
+titre <- "Travail des femmes / Sexe (Allemagne, 2018)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+```
+
+# Variation selon l'âge
+
+## En 1997
+
+```{r}
+X<-sel1$age6
+Y<-sel1$job_man
+W<-sel1$wgt
+titre <- "Travail des femmes / Âge (Allemagne, 1997)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+```
+
+## En 2018
+
+```{r}
+X<-sel2$age6
+Y<-sel2$job_man
+W<-sel2$wgt
+titre <- "Travail des femmes / Âge (Allemagne, 2018)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+```
+
+# Variation selon les générations
+
+## En 1997
+
+```{r}
+X<-sel1$gen4
+Y<-sel1$job_man
+W<-sel1$wgt
+
+titre <- "Travail des femmes / Génération (Allemagne, 1997)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+```
+
+## En 2018
+
+```{r}
+X<-sel2$gen4
+Y<-sel2$job_man
+W<-sel2$wgt
+titre <- "Travail des femmes / Génération (Allemagne, 2018)"
+
+# Tableau de contingence
+tc<- wtd.table(X,Y,W)
+kable(tc, caption= titre)
+      
+
+
+# Pourcentage en ligne
+kable(lprop(tc), caption = titre)
+
+
+# Test du chi2
+test <- chisq.test(tc)
+test
+
+# Graphiques
+
+plot(tc,col=rainbow(n=10),main=titre, sub = "Fréquences")
+
+mosaicplot(tc,shade=T,main = titre, sub="Résidus")
+
+```

@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analyse d’enquêtes avec R - Test du Chi-2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Analyse d’enquêtes avec R</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./001-Data.html">Préparation des données</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./002-Test.html">Test du Chi-2</a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#objectif" id="toc-objectif" class="nav-link active" data-scroll-target="#objectif">Objectif</a></li>
+  <li><a href="#préparation-des-données" id="toc-préparation-des-données" class="nav-link" data-scroll-target="#préparation-des-données">Préparation des données</a>
+  <ul class="collapse">
+  <li><a href="#sélection-des-variables" id="toc-sélection-des-variables" class="nav-link" data-scroll-target="#sélection-des-variables">Sélection des variables</a></li>
+  <li><a href="#recodage-des-facteurs" id="toc-recodage-des-facteurs" class="nav-link" data-scroll-target="#recodage-des-facteurs">Recodage des facteurs</a></li>
+  <li><a href="#découpage-des-classes" id="toc-découpage-des-classes" class="nav-link" data-scroll-target="#découpage-des-classes">Découpage des classes</a></li>
+  <li><a href="#division-par-période" id="toc-division-par-période" class="nav-link" data-scroll-target="#division-par-période">Division par période</a></li>
+  <li><a href="#résumé" id="toc-résumé" class="nav-link" data-scroll-target="#résumé">Résumé</a></li>
+  </ul></li>
+  <li><a href="#evolution-de-lopinion-au-cours-du-temps" id="toc-evolution-de-lopinion-au-cours-du-temps" class="nav-link" data-scroll-target="#evolution-de-lopinion-au-cours-du-temps">Evolution de l’opinion au cours du temps</a>
+  <ul class="collapse">
+  <li><a href="#création-du-tableau-de-contingence" id="toc-création-du-tableau-de-contingence" class="nav-link" data-scroll-target="#création-du-tableau-de-contingence">Création du tableau de contingence</a></li>
+  <li><a href="#profils-en-pourcentage" id="toc-profils-en-pourcentage" class="nav-link" data-scroll-target="#profils-en-pourcentage">Profils en pourcentage</a></li>
+  <li><a href="#visualisation" id="toc-visualisation" class="nav-link" data-scroll-target="#visualisation">Visualisation</a></li>
+  <li><a href="#test-du-chi-2" id="toc-test-du-chi-2" class="nav-link" data-scroll-target="#test-du-chi-2">Test du chi-2</a></li>
+  <li><a href="#résidus" id="toc-résidus" class="nav-link" data-scroll-target="#résidus">Résidus</a></li>
+  <li><a href="#visualisation-des-écarts-signifcatifs" id="toc-visualisation-des-écarts-signifcatifs" class="nav-link" data-scroll-target="#visualisation-des-écarts-signifcatifs">Visualisation des écarts signifcatifs</a></li>
+  </ul></li>
+  <li><a href="#variation-selon-le-sexe" id="toc-variation-selon-le-sexe" class="nav-link" data-scroll-target="#variation-selon-le-sexe">Variation selon le sexe</a>
+  <ul class="collapse">
+  <li><a href="#en-1997" id="toc-en-1997" class="nav-link" data-scroll-target="#en-1997">En 1997</a></li>
+  <li><a href="#en-2018" id="toc-en-2018" class="nav-link" data-scroll-target="#en-2018">En 2018</a></li>
+  </ul></li>
+  <li><a href="#variation-selon-lâge" id="toc-variation-selon-lâge" class="nav-link" data-scroll-target="#variation-selon-lâge">Variation selon l’âge</a>
+  <ul class="collapse">
+  <li><a href="#en-1997-1" id="toc-en-1997-1" class="nav-link" data-scroll-target="#en-1997-1">En 1997</a></li>
+  <li><a href="#en-2018-1" id="toc-en-2018-1" class="nav-link" data-scroll-target="#en-2018-1">En 2018</a></li>
+  </ul></li>
+  <li><a href="#variation-selon-les-générations" id="toc-variation-selon-les-générations" class="nav-link" data-scroll-target="#variation-selon-les-générations">Variation selon les générations</a>
+  <ul class="collapse">
+  <li><a href="#en-1997-2" id="toc-en-1997-2" class="nav-link" data-scroll-target="#en-1997-2">En 1997</a></li>
+  <li><a href="#en-2018-2" id="toc-en-2018-2" class="nav-link" data-scroll-target="#en-2018-2">En 2018</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Test du Chi-2</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="objectif" class="level2">
+<h2 class="anchored" data-anchor-id="objectif">Objectif</h2>
+<p>On va réaliser une analyse de relations entre deux variables qualitatives pour un pays et comparer les résultats à deux périodes de temps.</p>
+</section>
+<section id="préparation-des-données" class="level1">
+<h1>Préparation des données</h1>
+<section id="sélection-des-variables" class="level3">
+<h3 class="anchored" data-anchor-id="sélection-des-variables">Sélection des variables</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>base<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"data/WVS_exo.RDS"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>sel<span class="ot">&lt;-</span>base <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="at">pays =</span> S003, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">year =</span> S020,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">wgt =</span> S017,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sex =</span> X001,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">age =</span> X003,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">gen  =</span> X002,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">job_man =</span> C001,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">job_nat =</span> C002) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>              <span class="fu">mutate</span>(<span class="at">pays =</span> <span class="fu">to_factor</span>(pays),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">year =</span> <span class="fu">as.numeric</span>(<span class="fu">to_character</span>(year)),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sex =</span> <span class="fu">to_factor</span>(sex),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                     <span class="at">age =</span> <span class="fu">as.numeric</span>(<span class="fu">to_character</span>(age)),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                     <span class="at">gen =</span> <span class="fu">as.numeric</span>(<span class="fu">to_character</span>(gen)),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                     <span class="at">job_man=</span><span class="fu">to_factor</span>(job_man),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">job_nat =</span> <span class="fu">to_factor</span>(job_nat)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                     ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(pays<span class="sc">==</span><span class="st">"Germany"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in mask$eval_all_mutate(quo): NAs introduits lors de la conversion
+automatique
+
+Warning in mask$eval_all_mutate(quo): NAs introduits lors de la conversion
+automatique</code></pre>
+</div>
+</div>
+</section>
+<section id="recodage-des-facteurs" class="level2">
+<h2 class="anchored" data-anchor-id="recodage-des-facteurs">Recodage des facteurs</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>job_man)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Missing; Unknown"    "Not asked in survey" "Not applicable"     
+[4] "No answer"           "DonÂ´t know"         "Agree"              
+[7] "Disagree"            "Neither"            </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>sex)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="st">"Homme"</span>,<span class="st">"Femme"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>job_man)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="st">"NSP"</span>,<span class="st">"D'accord"</span>,<span class="st">"Pas d'acccord"</span>,<span class="st">"NSP"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>job_nat)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="st">"NSP"</span>,<span class="st">"D'accord"</span>,<span class="st">"Pas d'acccord"</span>,<span class="st">"NSP"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="découpage-des-classes" class="level2">
+<h2 class="anchored" data-anchor-id="découpage-des-classes">Découpage des classes</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sel<span class="sc">$</span>age6<span class="ot">&lt;-</span><span class="fu">cut</span>(sel<span class="sc">$</span>age, <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">15</span>,<span class="dv">29</span>,<span class="dv">39</span>,<span class="dv">49</span>,<span class="dv">59</span>,<span class="dv">69</span>,<span class="dv">110</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>age6)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">"- de 25 ans"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"30-39 ans"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"40-49 ans"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"50-59 ans"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"60-69 ans"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"70 ans et +"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>sel<span class="sc">$</span>gen4<span class="ot">&lt;-</span><span class="fu">cut</span>(sel<span class="sc">$</span>gen, <span class="at">breaks=</span><span class="fu">c</span>(<span class="dv">1901</span>,<span class="dv">1944</span>,<span class="dv">1959</span>,<span class="dv">1974</span>,<span class="dv">2010</span>))</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(sel<span class="sc">$</span>gen4)<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Pre-Boomer (&lt; 1945)"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Boomer I (1945-1959)"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"Boomer II (1960-74)"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Post-Boomer (&gt; 1974)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="division-par-période" class="level2">
+<h2 class="anchored" data-anchor-id="division-par-période">Division par période</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sel1<span class="ot">&lt;-</span>sel <span class="sc">%&gt;%</span> <span class="fu">filter</span>(year <span class="sc">&lt;</span><span class="dv">2000</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sel2<span class="ot">&lt;-</span>sel <span class="sc">%&gt;%</span> <span class="fu">filter</span>(year<span class="sc">&gt;</span><span class="dv">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="résumé" class="level2">
+<h2 class="anchored" data-anchor-id="résumé">Résumé</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sel1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  pays           year           wgt       sex      
+ Germany            :2026   Min.   :1997   Min.   :1   Homme: 928  
+ Missing; Unknown   :   0   1st Qu.:1997   1st Qu.:1   Femme:1098  
+ Not asked in survey:   0   Median :1997   Median :1               
+ Not applicable     :   0   Mean   :1997   Mean   :1               
+ No answer          :   0   3rd Qu.:1997   3rd Qu.:1               
+ Don't know         :   0   Max.   :1997   Max.   :1               
+ (Other)            :   0                                          
+      age             gen                job_man              job_nat    
+ Min.   :18.00   Min.   :1907   NSP          : 295   NSP          : 202  
+ 1st Qu.:30.00   1st Qu.:1941   D'accord     : 447   D'accord     :1140  
+ Median :41.00   Median :1956   Pas d'acccord:1284   Pas d'acccord: 684  
+ Mean   :43.61   Mean   :1953                                            
+ 3rd Qu.:56.00   3rd Qu.:1967                                            
+ Max.   :90.00   Max.   :1979                                            
+ NA's   :7       NA's   :7                                               
+          age6                       gen4    
+ - de 25 ans:450   Pre-Boomer (&lt; 1945) :616  
+ 30-39 ans  :503   Boomer I (1945-1959):527  
+ 40-49 ans  :374   Boomer II (1960-74) :757  
+ 50-59 ans  :315   Post-Boomer (&gt; 1974):119  
+ 60-69 ans  :215   NA's                :  7  
+ 70 ans et +:162                             
+ NA's       :  7                             </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sel2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  pays           year           wgt       sex     
+ Germany            :1528   Min.   :2018   Min.   :1   Homme:743  
+ Missing; Unknown   :   0   1st Qu.:2018   1st Qu.:1   Femme:785  
+ Not asked in survey:   0   Median :2018   Median :1              
+ Not applicable     :   0   Mean   :2018   Mean   :1              
+ No answer          :   0   3rd Qu.:2018   3rd Qu.:1              
+ Don't know         :   0   Max.   :2018   Max.   :1              
+ (Other)            :   0                                         
+      age            gen                job_man              job_nat   
+ Min.   :18.0   Min.   :1921   NSP          : 194   NSP          :281  
+ 1st Qu.:36.0   1st Qu.:1952   D'accord     : 140   D'accord     :414  
+ Median :51.0   Median :1966   Pas d'acccord:1193   Pas d'acccord:824  
+ Mean   :50.8   Mean   :1966   NA's         :   1   NA's         :  9  
+ 3rd Qu.:65.0   3rd Qu.:1981                                           
+ Max.   :96.0   Max.   :2000                                           
+                                                                       
+          age6                       gen4    
+ - de 25 ans:248   Pre-Boomer (&lt; 1945) :217  
+ 30-39 ans  :201   Boomer I (1945-1959):335  
+ 40-49 ans  :270   Boomer II (1960-74) :460  
+ 50-59 ans  :299   Post-Boomer (&gt; 1974):516  
+ 60-69 ans  :233                             
+ 70 ans et +:277                             
+                                             </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="evolution-de-lopinion-au-cours-du-temps" class="level1">
+<h1>Evolution de l’opinion au cours du temps</h1>
+<section id="création-du-tableau-de-contingence" class="level2">
+<h2 class="anchored" data-anchor-id="création-du-tableau-de-contingence">Création du tableau de contingence</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel<span class="sc">$</span>year</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel<span class="sc">$</span>job_man</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel<span class="sc">$</span>wgt</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>tc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      NSP D'accord Pas d'acccord
+1997  295      447          1284
+2018  194      140          1193</code></pre>
+</div>
+</div>
+</section>
+<section id="profils-en-pourcentage" class="level2">
+<h2 class="anchored" data-anchor-id="profils-en-pourcentage">Profils en pourcentage</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lprop</span>(tc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         NSP   D'accord Pas d'acccord Total
+1997      14.6  22.1     63.4         100.0
+2018      12.7   9.2     78.1         100.0
+Ensemble  13.8  16.5     69.7         100.0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cprop</span>(tc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      NSP   D'accord Pas d'acccord Ensemble
+1997   60.3  76.1     51.8          57.0   
+2018   39.7  23.9     48.2          43.0   
+Total 100.0 100.0    100.0         100.0   </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop</span>(tc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      NSP   D'accord Pas d'acccord Total
+1997    8.3  12.6     36.1          57.0
+2018    5.5   3.9     33.6          43.0
+Total  13.8  16.5     69.7         100.0</code></pre>
+</div>
+</div>
+</section>
+<section id="visualisation" class="level2">
+<h2 class="anchored" data-anchor-id="visualisation">Visualisation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">c</span>(<span class="st">"gray"</span>,<span class="st">"yellow"</span>,<span class="st">"orange"</span>), <span class="at">main=</span><span class="st">"Priorité au travail des hommes"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="test-du-chi-2" class="level2">
+<h2 class="anchored" data-anchor-id="test-du-chi-2">Test du chi-2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tk2 <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>tk2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 116.99, df = 2, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="résidus" class="level2">
+<h2 class="anchored" data-anchor-id="résidus">Résidus</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tk2<span class="sc">$</span>observed, <span class="at">caption =</span> <span class="st">"Valeurs observées"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Valeurs observées</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">295</td>
+<td style="text-align: right;">447</td>
+<td style="text-align: right;">1284</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018</td>
+<td style="text-align: right;">194</td>
+<td style="text-align: right;">140</td>
+<td style="text-align: right;">1193</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tk2<span class="sc">$</span>expected, <span class="at">caption =</span> <span class="st">"Valeurs théoriques"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Valeurs théoriques</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">278.8387</td>
+<td style="text-align: right;">334.7205</td>
+<td style="text-align: right;">1412.441</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018</td>
+<td style="text-align: right;">210.1613</td>
+<td style="text-align: right;">252.2795</td>
+<td style="text-align: right;">1064.559</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tk2<span class="sc">$</span>observed<span class="sc">-</span>tk2<span class="sc">$</span>expected, <span class="at">caption =</span> <span class="st">"Résidus bruts"</span>, <span class="at">digits=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Résidus bruts</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">16.2</td>
+<td style="text-align: right;">112.3</td>
+<td style="text-align: right;">-128.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018</td>
+<td style="text-align: right;">-16.2</td>
+<td style="text-align: right;">-112.3</td>
+<td style="text-align: right;">128.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tk2<span class="sc">$</span>residuals , <span class="at">caption =</span> <span class="st">"Résidus standardisés"</span>, <span class="at">digits=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Résidus standardisés</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1997</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">6.14</td>
+<td style="text-align: right;">-3.42</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018</td>
+<td style="text-align: right;">-1.11</td>
+<td style="text-align: right;">-7.07</td>
+<td style="text-align: right;">3.94</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="visualisation-des-écarts-signifcatifs" class="level2">
+<h2 class="anchored" data-anchor-id="visualisation-des-écarts-signifcatifs">Visualisation des écarts signifcatifs</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc, <span class="at">shade =</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="variation-selon-le-sexe" class="level1">
+<h1>Variation selon le sexe</h1>
+<section id="en-1997" class="level2">
+<h2 class="anchored" data-anchor-id="en-1997">En 1997</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel1<span class="sc">$</span>sex</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel1<span class="sc">$</span>job_man</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel1<span class="sc">$</span>wgt</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Sexe (Allemagne, 1997)"</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Sexe (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Homme</td>
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">211</td>
+<td style="text-align: right;">555</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Femme</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: right;">236</td>
+<td style="text-align: right;">729</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Sexe (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Homme</td>
+<td style="text-align: right;">17.45690</td>
+<td style="text-align: right;">22.73707</td>
+<td style="text-align: right;">59.80603</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Femme</td>
+<td style="text-align: right;">12.11293</td>
+<td style="text-align: right;">21.49362</td>
+<td style="text-align: right;">66.39344</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">14.56071</td>
+<td style="text-align: right;">22.06318</td>
+<td style="text-align: right;">63.37611</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 13.66, df = 2, p-value = 0.001081</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="en-2018" class="level2">
+<h2 class="anchored" data-anchor-id="en-2018">En 2018</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel2<span class="sc">$</span>sex</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel2<span class="sc">$</span>job_man</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel2<span class="sc">$</span>wgt</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Sexe (Allemagne, 2018)"</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Sexe (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Homme</td>
+<td style="text-align: right;">112</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">553</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Femme</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">640</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Sexe (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Homme</td>
+<td style="text-align: right;">15.09434</td>
+<td style="text-align: right;">10.377358</td>
+<td style="text-align: right;">74.52830</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Femme</td>
+<td style="text-align: right;">10.44586</td>
+<td style="text-align: right;">8.025478</td>
+<td style="text-align: right;">81.52866</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">12.70465</td>
+<td style="text-align: right;">9.168304</td>
+<td style="text-align: right;">78.12705</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 11.182, df = 2, p-value = 0.003732</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="variation-selon-lâge" class="level1">
+<h1>Variation selon l’âge</h1>
+<section id="en-1997-1" class="level2">
+<h2 class="anchored" data-anchor-id="en-1997-1">En 1997</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel1<span class="sc">$</span>age6</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel1<span class="sc">$</span>job_man</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel1<span class="sc">$</span>wgt</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Âge (Allemagne, 1997)"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Âge (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">- de 25 ans</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">343</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30-39 ans</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">343</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">40-49 ans</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">243</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50-59 ans</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">175</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60-69 ans</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70 ans et +</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">66</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Âge (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">- de 25 ans</td>
+<td style="text-align: right;">12.66667</td>
+<td style="text-align: right;">11.11111</td>
+<td style="text-align: right;">76.22222</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30-39 ans</td>
+<td style="text-align: right;">15.50696</td>
+<td style="text-align: right;">16.30219</td>
+<td style="text-align: right;">68.19085</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">40-49 ans</td>
+<td style="text-align: right;">13.63636</td>
+<td style="text-align: right;">21.39037</td>
+<td style="text-align: right;">64.97326</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50-59 ans</td>
+<td style="text-align: right;">13.65079</td>
+<td style="text-align: right;">30.79365</td>
+<td style="text-align: right;">55.55556</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60-69 ans</td>
+<td style="text-align: right;">16.74419</td>
+<td style="text-align: right;">31.62791</td>
+<td style="text-align: right;">51.62791</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70 ans et +</td>
+<td style="text-align: right;">17.90123</td>
+<td style="text-align: right;">41.35802</td>
+<td style="text-align: right;">40.74074</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">14.56166</td>
+<td style="text-align: right;">21.99108</td>
+<td style="text-align: right;">63.44725</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 117.74, df = 10, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="en-2018-1" class="level2">
+<h2 class="anchored" data-anchor-id="en-2018-1">En 2018</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel2<span class="sc">$</span>age6</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel2<span class="sc">$</span>job_man</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel2<span class="sc">$</span>wgt</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Âge (Allemagne, 2018)"</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Âge (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">- de 25 ans</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">201</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30-39 ans</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">172</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">40-49 ans</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">220</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50-59 ans</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">245</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60-69 ans</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">169</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70 ans et +</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">186</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Âge (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">- de 25 ans</td>
+<td style="text-align: right;">13.709677</td>
+<td style="text-align: right;">5.241936</td>
+<td style="text-align: right;">81.04839</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30-39 ans</td>
+<td style="text-align: right;">6.965174</td>
+<td style="text-align: right;">7.462687</td>
+<td style="text-align: right;">85.57214</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">40-49 ans</td>
+<td style="text-align: right;">11.851852</td>
+<td style="text-align: right;">6.666667</td>
+<td style="text-align: right;">81.48148</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50-59 ans</td>
+<td style="text-align: right;">11.705686</td>
+<td style="text-align: right;">6.354515</td>
+<td style="text-align: right;">81.93980</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60-69 ans</td>
+<td style="text-align: right;">15.948276</td>
+<td style="text-align: right;">11.206897</td>
+<td style="text-align: right;">72.84483</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">70 ans et +</td>
+<td style="text-align: right;">15.162455</td>
+<td style="text-align: right;">17.689531</td>
+<td style="text-align: right;">67.14801</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">12.704650</td>
+<td style="text-align: right;">9.168304</td>
+<td style="text-align: right;">78.12705</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 49.003, df = 10, p-value = 4.067e-07</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="variation-selon-les-générations" class="level1">
+<h1>Variation selon les générations</h1>
+<section id="en-1997-2" class="level2">
+<h2 class="anchored" data-anchor-id="en-1997-2">En 1997</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel1<span class="sc">$</span>gen4</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel1<span class="sc">$</span>job_man</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel1<span class="sc">$</span>wgt</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Génération (Allemagne, 1997)"</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Génération (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pre-Boomer (&lt; 1945)</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">208</td>
+<td style="text-align: right;">308</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Boomer I (1945-1959)</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">123</td>
+<td style="text-align: right;">341</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Boomer II (1960-74)</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">536</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Post-Boomer (&gt; 1974)</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">96</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Génération (Allemagne, 1997)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pre-Boomer (&lt; 1945)</td>
+<td style="text-align: right;">16.233766</td>
+<td style="text-align: right;">33.76623</td>
+<td style="text-align: right;">50.00000</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Boomer I (1945-1959)</td>
+<td style="text-align: right;">11.954459</td>
+<td style="text-align: right;">23.33966</td>
+<td style="text-align: right;">64.70588</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Boomer II (1960-74)</td>
+<td style="text-align: right;">15.852048</td>
+<td style="text-align: right;">13.34214</td>
+<td style="text-align: right;">70.80581</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Post-Boomer (&gt; 1974)</td>
+<td style="text-align: right;">9.243697</td>
+<td style="text-align: right;">10.08403</td>
+<td style="text-align: right;">80.67227</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">14.561664</td>
+<td style="text-align: right;">21.99108</td>
+<td style="text-align: right;">63.44725</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 109.23, df = 6, p-value &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="en-2018-2" class="level2">
+<h2 class="anchored" data-anchor-id="en-2018-2">En 2018</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>X<span class="ot">&lt;-</span>sel2<span class="sc">$</span>gen4</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>Y<span class="ot">&lt;-</span>sel2<span class="sc">$</span>job_man</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>W<span class="ot">&lt;-</span>sel2<span class="sc">$</span>wgt</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>titre <span class="ot">&lt;-</span> <span class="st">"Travail des femmes / Génération (Allemagne, 2018)"</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tableau de contingence</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>tc<span class="ot">&lt;-</span> <span class="fu">wtd.table</span>(X,Y,W)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(tc, <span class="at">caption=</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Génération (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pre-Boomer (&lt; 1945)</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">140</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Boomer I (1945-1959)</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">251</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Boomer II (1960-74)</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">378</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Post-Boomer (&gt; 1974)</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">424</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pourcentage en ligne</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">lprop</span>(tc), <span class="at">caption =</span> titre)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Travail des femmes / Génération (Allemagne, 2018)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">NSP</th>
+<th style="text-align: right;">D’accord</th>
+<th style="text-align: right;">Pas d’acccord</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pre-Boomer (&lt; 1945)</td>
+<td style="text-align: right;">15.20737</td>
+<td style="text-align: right;">20.276498</td>
+<td style="text-align: right;">64.51613</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Boomer I (1945-1959)</td>
+<td style="text-align: right;">15.56886</td>
+<td style="text-align: right;">9.281437</td>
+<td style="text-align: right;">75.14970</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Boomer II (1960-74)</td>
+<td style="text-align: right;">11.30435</td>
+<td style="text-align: right;">6.521739</td>
+<td style="text-align: right;">82.17391</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Post-Boomer (&gt; 1974)</td>
+<td style="text-align: right;">11.04651</td>
+<td style="text-align: right;">6.782946</td>
+<td style="text-align: right;">82.17054</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ensemble</td>
+<td style="text-align: right;">12.70465</td>
+<td style="text-align: right;">9.168304</td>
+<td style="text-align: right;">78.12705</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test du chi2</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(tc)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  tc
+X-squared = 48.548, df = 6, p-value = 9.181e-09</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiques</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tc,<span class="at">col=</span><span class="fu">rainbow</span>(<span class="at">n=</span><span class="dv">10</span>),<span class="at">main=</span>titre, <span class="at">sub =</span> <span class="st">"Fréquences"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mosaicplot</span>(tc,<span class="at">shade=</span>T,<span class="at">main =</span> titre, <span class="at">sub=</span><span class="st">"Résidus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="003-Logit_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

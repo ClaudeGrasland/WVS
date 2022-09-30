@@ -1,0 +1,311 @@
+---
+title: "Préparation des données"
+author: "Claude Grasland"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(questionr)
+library(labelled)
+library(knitr)
+```
+
+## Introduction
+
+L'objet de ce cours est de donner une introduction à l'analyse d'enquête dans R en présentant de façon aussi simple que possible les outils de haut niveau mis au point récemment par des ingénieurs français pouur rendre pluus accessible les tâches de préparation des données, recodage, description, test et modélisation. Nous sommes à cet égard particulièrement redevable à deux auteurs, **Julien Barnier** et **Joseph Larmarange** qui ont crée ou contribué au développement de packages qui simplifient grandement le travail ainsi qu'à des sites pédagogiques d'exemples.
+
+Notre contribution personnelle consiste principalement ici à implémenter leurs travaux sur un nouvel exemple d'application, celui des données de la World Value Survey dont nous avons extrait un échantillon composé de pays présents dans la vague la plus récente et dans une vague ancienne afin de pouvoir (1) suivre des évolutions à l'échelle d'une génération et (2) comparer des pays entre eux.
+
+# Importation des données
+
+## Chargement du fichier initial
+
+Le fichier utilisé est composé de variables au format *haven_labelled* qui est un type bien adapté au stockage des données d'enquête mais est initialement plus difficile à comprendre que les formats habituellement utilisés dans R. Il suppose en effet le chargement du package `labelled`pour en exploiter toutes les possibilités. On trouvera tous les détails sur ce format dans la page que lui a consacré Joseph Larmarange :
+
+https://larmarange.github.io/labelled/
+
+```{r}
+library(labelled)
+base<-readRDS(file = "data/WVS_exo.RDS")
+kable(head(base))
+```
+
+A première vue le fichier n'est d'aspect pas très sympathique puisque les noms de colonnes ne permettent pas de deviner la variable (X001, X002, X003, ...) et que le contenu est manifestement lui-même codé. Toutefois, si l'on regarde dans la fenêtre Environnement de R Studio, on voit qu'il y a beaucouo plus de renseignements.
+
+## Visualisation des noms des variables et des niveaux
+
+Prenons à titre d'exemple la variable X007. Deux fonctions du package `labelled` permettent de connaître le nom de la variable (avec `var_label`) et celui de chacun de ses niveaux (avec `val_labels`) :
+
+```{r}
+var_label(base$X007)
+val_labels(base$X007)
+```
+
+La variable en question était donc le statut matrimonial de la personne. Elle comporte 11 modalités correspondant soit à différentes formes de non-réponses (-5 à -1) soit à des réponses (1 à 6).
+
+Les fonctions classiques de R-base ne permettent cependant pas de traiter directement la variable. Si on execute par exemple la fonction `table()` on obtient le dénombrement des modalités mais sans les labels des modalités.
+
+```{r}
+table(base$X007)
+```
+
+## Création d'un tableau des variables disponibles
+
+Un petit programme permet de recenser la liste des variables présentes dans le tableau
+
+```{r}
+labvar<-var_label(base)
+tab_labvar<-data.frame(code = names(labvar),def = as.character(labvar))
+kable(tab_labvar)
+```
+
+On peut voir que notre extrait se compose à la fois de variables de cadrage (pays, date de l'enquête), de variables indépendantes explicatives (âge, sexe, revenu, ...) et de variables dépendantes à expliquer (sentiment de bonheur, opinion sur les inégalités de revenu, statut des femmes dans la société, ...)
+
+## Conversion des variables haven_labelled en factor
+
+Pour faciliter les traitements statistiques dans R, il est préférable de revenir à un format plus standard qui est le type `factor`. La conversion n'est à première vue pas très compliquée mais elle peut conduire à des difficultés qui sont le plus souvent faciles à résoudre en utilisant le package `questionr`.
+
+Dans les cas les plus simples, il suffit d'utiliser la fonction `to_factor` du package labelled. Comme on peut le voir-ci-dessous, la variable X007 (de type *haven_labelled*) est transformée en une variable marital (de type *factor*) sur laquelle on peut désormais appliquer les fonctions de R-base.
+
+```{r}
+marital <- to_factor(base$X007)
+class(marital)
+kable(table(marital))
+```
+
+Mais il peut arriver que la conversion aboutisse à un résultat non satisfaisant, par exemple dans le cas de la variable S003 qui donne le nom complet du pays d'enquête non seulement pour ceux qui sont présent dans le tableau mais dans tous les territoires, pays ou non, ayant servi de lieu d'enquête soit 239 possibilités :
+
+```{r}
+pays <- to_factor(base$S003)
+nom_pays<-levels(pays)
+head(nom_pays,10)
+print("...")
+tail(nom_pays,10)
+
+```
+
+Beaucoup de niveaux sont donc inutiles. On peut résoudre le problème en transformant la variable en caractère avant de la retransformer en factor. Le passage en caractère détruit en effet les niveaux inuutilisés.
+
+```{r}
+nom_pays <- to_character(base$S003)
+class(nom_pays)
+nom_pays<-as.factor(nom_pays)
+class(nom_pays)
+kable(table(nom_pays))
+```
+
+## Une solution brutale ...
+
+Si on ne souhaite vraiment pas s'embarasser de difficultés, on peut procéder à la transformation simultanée de touutes les variables `haven_labelled` en variables de type `factor`. Puis on peut convertir le tableau en pur data.frame si on ne souhaite pas utiliser les propriétés du package tidyverse.
+
+```{r}
+tb<-to_factor(base)
+class(tb)
+df<-as.data.frame(tb)
+class(df)
+```
+
+# Recodage et transformation des variables
+
+Une fois importées les variables dans un format standard, plusieuurs opérations de recodage et de transformation vont être menées en amont de l'analyse statistique. Il est ici fortement recommandé d'utiliser le package `questionr` qui offre des outils simples et performants et évite de se plonger tout de suite dans des lignes de code très complexes. Le recodage des facteurs est en effet une opération cruciale mais difficile aussi bien sur le plan conceptuel que sur le plan technique.
+
+https://juba.github.io/questionr/
+
+## Exemple de recodage manuel
+
+Un cas fréquent de recodage est le fait de ne conserver que les réponses et de déclare en valeurs manquantes les non-réponses ou les refus de répondre. Considérons à titre d'exemple la question C001 qui porte sur la priorité à donner aux hommes plutôt qu'aux femmes lorsque le travail est rare et essayons de la croiser avec la variable X001 qui est le sexe de la personne enquêtée.
+
+```{r}
+Y<-to_factor(base$C001)
+table(Y)
+X<-to_factor(base$X001)
+table(X)
+table(X,Y)
+```
+
+Si l'on veut procéder à une analyse statistique, il va être nécessaire de ne conserver que les personnes qui ont répodu à la question d'opinion et dont on connaît le sexe.
+
+Un recodage "classique" dans R suppose une démarche assez laborieuse
+
+-   pour Y
+
+```{r}
+# Examen des niveaux de Y
+levels(Y)
+# Recodage de Y
+levels(Y)<-c(NA,NA,NA,NA,NA,"D'accord","Pas d'accord","Ni l'un ni l'autre")
+# Dénombrement de Y
+table(Y)
+```
+
+-   puis pour X
+
+```{r}
+# Examen des niveaux de Y
+levels(X)
+# Recodage de X
+levels(X)<-c(NA,NA,NA,NA,"Homme","Femme")
+# Dénombrement de Y
+table(X)
+```
+
+-   avant de pouvoir afficher le tableau de contingence et le pourcentage de réponses en ligne (avec la fonction `lprop` du package `questionr`)
+
+```{r}
+tc <-table(X,Y)
+tc
+lprop(tc)
+```
+
+On peut ensuite se demander si l'on veut réellement conserver les réponses "neutres" du type "*ni l'un ni l'autre*". Si on pense qu'elles ne sont pas pertinentes, on va procéder à un nouveau recodage de Y
+
+```{r}
+# Examen des niveaux de Y
+Y2<-Y
+levels(Y2)
+# Recodage de Y
+levels(Y2)<-c("D'accord","Pas d'accord",NA)
+# tableau de contingence XY
+tc2<-table(X,Y2)
+tc2
+lprop(tc2,1)
+
+```
+
+## Recodage des niveaux avec `irec()`
+
+Prenons l'exemple de la variable X025A_01 qui donne le niveau scolaire du répondant selon la norme ISCED11. Si on lance la commande irec() appliquée à cette variable, on obtient une interface graphique indiquant les niveaux actuels de la variable :
+
+```{r}
+include_graphics("img/irec_ex001.jpg")
+```
+
+On peut alors facilement les modifiers, par exemple en retirant les non-réponses et en regroupant les modalités en trois classes seulement :
+
+```{r}
+include_graphics("img/irec_ex003.jpg")
+```
+
+Puis on récupère le code R permettant d'efectuer facilement l'opération
+
+```{r}
+# Choix de la variable
+scol<-to_factor(base$X007)
+
+# Lancement de la fonction irec() - non exécutée ici 
+#irec(scol)
+
+## Recodage de scol en scol_rec
+scol_rec <- as.character(scol)
+scol_rec[scol == "Missing: Other"] <- NA
+scol_rec[scol == "Not asked"] <- NA
+scol_rec[scol == "Not applicable"] <- NA
+scol_rec[scol == "No answer"] <- NA
+scol_rec[scol == "Don't know"] <- NA
+scol_rec[scol == "Married"] <- "Est en couple"
+scol_rec[scol == "Living together as married"] <- "Est en couple"
+scol_rec[scol == "Divorced"] <- "N'est plus en couple"
+scol_rec[scol == "Separated"] <- "N'est plus en couple"
+scol_rec[scol == "Widowed"] <- "N'est plus en couple"
+scol_rec[scol == "Single/Never married"] <- "N'a jamais été en couple"
+
+# Résultat
+table(scol_rec)
+```
+
+## Ordre des niveaux avec `iorder()`
+
+Dans l'exemple précédent, on peut considérer que l'ordre n'est pas tout à fait logique par rapport au cycle de vie et on voudrait inverser la position des niveaux 1 et 2. On peut le faire manuellement avec les fonctions de R-base mais il est aussi possible d'utiliser à nouveau une interface de questionr appelée `iorder()` qui afficche l'ordre actuel des niveaux :
+
+```{r}
+include_graphics("img/iorder_ex001.jpg")
+```
+
+... et permet de les modifier facilement ...
+
+```{r}
+include_graphics("img/iorder_ex002.jpg")
+```
+
+... avant de récupérer le code R :
+
+```{r}
+#iorder(scol_rec)
+
+
+## Réordonnancement de scol_rec
+scol_rec <- factor(scol_rec,
+  levels = c("N'a jamais été en couple", "Est en couple", "N'est plus en couple")
+)
+table(scol_rec)
+```
+
+## Récupération d'une variable quantitative
+
+Supposons que nous souhaitions constituer des classes d'âge en découpant la variable X002. Une première difficulté vient du fait qu'il ne s'agit pas d'une variable purement quantitative du fait de la présence de modalités correspondant aux valeurs manquantes
+
+```{r}
+age<-to_factor(base$X003)
+niv_age<-levels(age)
+head(niv_age,10)
+print("...")
+tail(niv_age,10)
+```
+
+On commence donc par transformer la variable en valeurs numériques en enchaînant une conversion **en caractère puis en numérique**.
+
+-   **N.B.** : si on avait procédé à une conversion **en factor puis en numérique** on aurait abouti à un résultat différent et faux. Car ce qui aurait été converti en numérique aurait été l'ordre des facteurs et non pas les âges. Du coup la classe "18" qui correspond aux personnes âgées de 18 ans aurait été transformé en la valeur 9 puisque c'est la 9e modalité.
+
+```{r}
+age<-as.numeric(to_character(base$X003))
+summary(age)
+```
+
+On peut récupérer de la même manière la variable correspondant à l'année de naissance c'est-à-dire la génération.
+
+```{r}
+gen<-as.numeric(to_character(base$X002))
+summary(gen)
+
+```
+
+## Découpage d'une variable quantitative en classes
+
+La procédure normale est le découpage avec la fonction `cut()`de R-base. Par exemple pour faire des classes d'amplitudes égales :
+
+```{r}
+mini<-min(age,na.rm=T)
+maxi<-max(age,na.rm=T)
+age4<-cut(age,breaks=c(mini,30,45,60,maxi),include.lowest = T)
+table(age4)
+```
+
+Ou des classes d'effectifs égaux :
+
+```{r}
+myclass <- quantile(age, c(0,0.25,0.5,0.75,1), na.rm=T)
+age4<-cut(age,breaks=myclass,include.lowest = T)
+table(age4)
+
+```
+
+Les classes obtenues peuvent être renommées si on leur donne une signification plus qualitative. Par exemple dans le cas des générations on pourrait faire quatre classes liées à l'histoire économoique et démographique.
+
+```{r}
+#icut(gen)
+## Recodage de gen en gen_rec
+gen4 <- cut(gen,
+  include.lowest = TRUE,
+  right = TRUE,
+  dig.lab = 4,
+ breaks=c(1901,1944,1959,1974,2010)
+)
+levels(gen4)<- c("Pre-Boomer (< 1945)",
+                  "Boomer I (1945-1959)",
+                  "Boomer II (1960-74)",
+                 "Post-Boomer (> 1974)")
+table(gen4)
+```
+
+On peut aussi se faire aider par la fonction `ìcut()` du package questionR qui offre une interfacte visuelle très pratique.

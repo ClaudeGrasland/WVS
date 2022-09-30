@@ -1,0 +1,21 @@
+project:
+  type: website
+render:
+      - index.qmd
+      - 001-Data.qmd
+      - 002-Test.qmd
+website:
+  title: "Analyse d'enquêtes avec R"
+  navbar:
+    left:
+      - 001-Data.qmd
+      - 002-Test.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+editor: visual
+
